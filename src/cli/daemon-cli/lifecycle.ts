@@ -37,7 +37,7 @@ export async function runDaemonUninstall(opts: DaemonLifecycleOptions = {}) {
     return;
   }
 
-  const service = resolveGatewayService();
+ const service = await resolveGatewayService();
   let loaded = false;
   try {
     loaded = await service.isLoaded({ env: process.env });

@@ -3,10 +3,17 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 
+// 重载 os.networkInterfaces() 方法以解决权限问题
+import { overloadOsNetworkInterfaces } from "./utils/os-overload.js";
+overloadOsNetworkInterfaces();
+
+
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 import { isTruthyEnvValue } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warnings.js";
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
+
+
 
 process.title = "openclaw-cn";
 installProcessWarningFilter();
