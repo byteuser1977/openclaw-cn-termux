@@ -2,11 +2,7 @@ import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { colorize, isRich, theme } from "../terminal/theme.js";
-import {
-  formatGatewayServiceDescription,
-  resolveGatewaySystemdServiceName,
-} from "./constants.js";
-import { parseKeyValueOutput } from "./runtime-parse.js";
+import { formatGatewayServiceDescription } from "./constants.js";
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 import { resolveHomeDir } from "./paths.js";
 
@@ -20,10 +16,6 @@ const formatLine = (label: string, value: string) => {
 function resolveInitdScriptPath(env: Record<string, string | undefined>): string {
   const home = toPosixPath(resolveHomeDir(env));
   return path.posix.join(home, ".init.d", "openclaw-gateway");
-}
-
-function resolveSystemInitdScriptPath(): string {
-  return "/etc/init.d/openclaw-gateway";
 }
 
 function resolvePidFilePath(env: Record<string, string | undefined>): string {
@@ -55,8 +47,8 @@ function buildInitdScript({
     .map(([key, value]) => `export ${key}="${value || ""}"`)
     .join("\n");
 
-  const cmd = programArguments.map(arg => `"${arg}"`).join(" ");
-  const workDir = workingDirectory || "$(dirname \"$0\")";
+  const cmd = programArguments.map((arg) => `"${arg}"`).join(" ");
+  const workDir = workingDirectory || '$(dirname "$0")';
 
   return `#!/bin/sh
 ### BEGIN INIT INFO
@@ -132,13 +124,17 @@ esac
 `;
 }
 
-async function executeCommand(command: string, args: string[], options?: { encoding: string }): Promise<string> {
+async function executeCommand(
+  command: string,
+  args: string[],
+  options?: { encoding: BufferEncoding },
+): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(command, args, options, (error, stdout, stderr) => {
+    execFile(command, args, options ?? { encoding: "utf-8" }, (error, stdout) => {
       if (error) {
         reject(error);
       } else {
-        resolve(stdout);
+        resolve(stdout?.toString() ?? "");
       }
     });
   });
@@ -169,17 +165,17 @@ export async function installInitdService({
   const scriptPath = resolveInitdScriptPath(env);
   const pidFile = resolvePidFilePath(env);
   const logFile = resolveLogFilePath(env);
-  
+
   await fs.mkdir(path.dirname(scriptPath), { recursive: true });
   await fs.mkdir(path.dirname(pidFile), { recursive: true });
-  
+
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
       profile: env.OPENCLAW_PROFILE,
       version: environment?.OPENCLAW_SERVICE_VERSION ?? env.OPENCLAW_SERVICE_VERSION,
     });
-  
+
   const script = buildInitdScript({
     description: serviceDescription,
     programArguments,
@@ -188,19 +184,19 @@ export async function installInitdService({
     pidFile,
     logFile,
   });
-  
+
   await fs.writeFile(scriptPath, script, "utf8");
   await fs.chmod(scriptPath, 0o755);
-  
+
   // 启动服务
   const startResult = await executeCommand(scriptPath, ["start"], {
     encoding: "utf8",
   });
-  
+
   stdout.write("\n");
   stdout.write(`${formatLine("Installed init.d service", scriptPath)}\n`);
   stdout.write(`${startResult}\n`);
-  
+
   return { scriptPath };
 }
 
@@ -212,9 +208,9 @@ export async function uninstallInitdService({
   stdout: NodeJS.WritableStream;
 }): Promise<void> {
   await assertInitdAvailable();
-  
+
   const scriptPath = resolveInitdScriptPath(env);
-  
+
   try {
     // 停止服务
     await executeCommand(scriptPath, ["stop"], {
@@ -223,7 +219,7 @@ export async function uninstallInitdService({
   } catch {
     // 忽略停止错误
   }
-  
+
   try {
     await fs.unlink(scriptPath);
     stdout.write(`${formatLine("Removed init.d service", scriptPath)}\n`);
@@ -240,7 +236,7 @@ export async function stopInitdService({
   env?: Record<string, string | undefined>;
 }): Promise<void> {
   await assertInitdAvailable();
-  
+
   const scriptPath = resolveInitdScriptPath(env ?? {});
   const result = await executeCommand(scriptPath, ["stop"], {
     encoding: "utf8",
@@ -257,7 +253,7 @@ export async function restartInitdService({
   env?: Record<string, string | undefined>;
 }): Promise<void> {
   await assertInitdAvailable();
-  
+
   const scriptPath = resolveInitdScriptPath(env ?? {});
   const result = await executeCommand(scriptPath, ["restart"], {
     encoding: "utf8",
@@ -282,7 +278,7 @@ export async function readInitdServiceRuntime(
   env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
 ): Promise<GatewayServiceRuntime> {
   const scriptPath = resolveInitdScriptPath(env);
-  
+
   try {
     await fs.access(scriptPath);
   } catch {
@@ -291,12 +287,12 @@ export async function readInitdServiceRuntime(
       detail: "Init.d script not found",
     };
   }
-  
+
   try {
     const result = await executeCommand(scriptPath, ["status"], {
       encoding: "utf8",
     });
-    
+
     if (result.includes("running")) {
       const pidMatch = result.match(/PID (\d+)/);
       const pid = pidMatch ? parseInt(pidMatch[1], 10) : undefined;
@@ -314,13 +310,13 @@ export async function readInitdServiceRuntime(
       code?: number;
       message?: string;
     };
-    
+
     if (e.code === 3) {
       return {
         status: "stopped",
       };
     }
-    
+
     return {
       status: "unknown",
       detail: e.message || String(error),
@@ -328,9 +324,7 @@ export async function readInitdServiceRuntime(
   }
 }
 
-export async function readInitdServiceCommand(
-  env: Record<string, string | undefined>,
-): Promise<{
+export async function readInitdServiceCommand(env: Record<string, string | undefined>): Promise<{
   programArguments: string[];
   workingDirectory?: string;
   environment?: Record<string, string>;
@@ -339,11 +333,11 @@ export async function readInitdServiceCommand(
   const scriptPath = resolveInitdScriptPath(env);
   try {
     const content = await fs.readFile(scriptPath, "utf8");
-    
+
     let cmdLine = "";
     let workingDirectory = "";
     const environment: Record<string, string> = {};
-    
+
     for (const rawLine of content.split("\n")) {
       const line = rawLine.trim();
       if (line.startsWith("CMD=")) {
@@ -360,17 +354,17 @@ export async function readInitdServiceCommand(
         }
       }
     }
-    
+
     if (!cmdLine) return null;
-    
+
     // 解析命令参数
     const programArguments = [];
     let currentArg = "";
     let inQuotes = false;
-    
+
     for (let i = 0; i < cmdLine.length; i++) {
       const char = cmdLine[i];
-      if (char === "\"") {
+      if (char === '"') {
         inQuotes = !inQuotes;
       } else if (char === " " && !inQuotes) {
         if (currentArg) {
@@ -381,11 +375,11 @@ export async function readInitdServiceCommand(
         currentArg += char;
       }
     }
-    
+
     if (currentArg) {
       programArguments.push(currentArg);
     }
-    
+
     return {
       programArguments,
       ...(workingDirectory ? { workingDirectory } : {}),
