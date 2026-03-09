@@ -11,6 +11,7 @@ read_when:
 QMD 是一个本地语义搜索引擎，可以替代 Openclaw-CN 的内置记忆搜索后端。它在本地运行 GGUF 模型进行查询扩展、向量嵌入和重排序，**无需任何远程 API 密钥**。
 
 相关文档：
+
 - 记忆概念：[记忆](/concepts/memory)
 - CLI 命令：[clawdbot memory](/cli/memory)
 
@@ -58,6 +59,7 @@ qmd --version
 echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
+
 </Tip>
 
 ### 3. 预下载模型（推荐）
@@ -98,12 +100,12 @@ source ~/.zshrc
 
 ---
 
-## 配置 Openclaw-CN
+## 配置 Openclaw-termux
 
 ### 启用 QMD 后端
 
 ```bash
-openclaw-cn config set memory.backend qmd
+openclaw-termux config set memory.backend qmd
 ```
 
 ### 配置作用域（推荐）
@@ -111,7 +113,7 @@ openclaw-cn config set memory.backend qmd
 默认情况下，QMD 仅在**私聊**中启用搜索。如需在所有场景（包括群聊和 CLI）中使用：
 
 ```bash
-openclaw-cn config set memory.qmd.scope.default allow
+openclaw-termux config set memory.qmd.scope.default allow
 ```
 
 ### 调整查询超时（按需）
@@ -120,14 +122,14 @@ openclaw-cn config set memory.qmd.scope.default allow
 
 ```bash
 # 设置为 30 秒（推荐低配设备）
-openclaw-cn config set memory.qmd.limits.timeoutMs 30000
+openclaw-termux config set memory.qmd.limits.timeoutMs 30000
 ```
 
 ### 完成后重启网关
 
 ```bash
 # 配置修改后需重启网关才能生效
-openclaw-cn gateway restart
+openclaw-termux gateway restart
 ```
 
 ### 完整配置示例
@@ -149,47 +151,45 @@ openclaw-cn gateway restart
       includeDefaultMemory: true,
 
       // 额外索引路径
-      paths: [
-        { path: "~/notes", pattern: "**/*.md", name: "my-notes" }
-      ],
+      paths: [{ path: "~/notes", pattern: "**/*.md", name: "my-notes" }],
 
       // 更新配置
       update: {
-        interval: "5m",          // 自动更新间隔
-        debounceMs: 15000,       // 防抖时间
-        onBoot: true,            // 启动时自动更新索引
-        waitForBootSync: false,  // 是否等待启动更新完成
-        embedInterval: "60m",    // 嵌入向量更新间隔
+        interval: "5m", // 自动更新间隔
+        debounceMs: 15000, // 防抖时间
+        onBoot: true, // 启动时自动更新索引
+        waitForBootSync: false, // 是否等待启动更新完成
+        embedInterval: "60m", // 嵌入向量更新间隔
         commandTimeoutMs: 30000, // collection 操作超时
         updateTimeoutMs: 120000, // 索引更新超时
-        embedTimeoutMs: 120000   // 嵌入更新超时
+        embedTimeoutMs: 120000, // 嵌入更新超时
       },
 
       // 查询限制
       limits: {
-        maxResults: 6,           // 最大返回结果数
-        maxSnippetChars: 700,    // 片段最大字符数
-        maxInjectedChars: 4000,  // 注入上下文最大字符数
-        timeoutMs: 30000         // 查询超时（毫秒）
+        maxResults: 6, // 最大返回结果数
+        maxSnippetChars: 700, // 片段最大字符数
+        maxInjectedChars: 4000, // 注入上下文最大字符数
+        timeoutMs: 30000, // 查询超时（毫秒）
       },
 
       // 作用域控制
       scope: {
-        default: "allow",        // 默认策略：allow | deny
+        default: "allow", // 默认策略：allow | deny
         rules: [
           // 可以按频道和聊天类型配置规则
           // { action: "allow", match: { chatType: "direct" } }
           // { action: "deny", match: { channel: "telegram", chatType: "group" } }
-        ]
+        ],
       },
 
       // 会话索引（实验性）
       sessions: {
-        enabled: false,          // 是否索引会话记录
-        retentionDays: 30        // 保留天数
-      }
-    }
-  }
+        enabled: false, // 是否索引会话记录
+        retentionDays: 30, // 保留天数
+      },
+    },
+  },
 }
 ```
 
@@ -199,11 +199,11 @@ openclaw-cn gateway restart
 
 QMD 默认索引工作区（`~/.openclaw/workspace`）中的以下文件：
 
-| Collection | 路径 | 匹配模式 |
-|---|---|---|
-| `memory-root` | `~/.openclaw/workspace/` | `MEMORY.md` |
-| `memory-alt` | `~/.openclaw/workspace/` | `memory.md` |
-| `memory-dir` | `~/.openclaw/workspace/memory/` | `**/*.md` |
+| Collection    | 路径                            | 匹配模式    |
+| ------------- | ------------------------------- | ----------- |
+| `memory-root` | `~/.openclaw/workspace/`        | `MEMORY.md` |
+| `memory-alt`  | `~/.openclaw/workspace/`        | `memory.md` |
+| `memory-dir`  | `~/.openclaw/workspace/memory/` | `**/*.md`   |
 
 确保工作区目录和记忆文件存在：
 
@@ -220,7 +220,7 @@ cat > ~/.openclaw/workspace/MEMORY.md << 'EOF'
 - 倾向使用 TypeScript
 
 ## 项目笔记
-- 当前在开发 Openclaw-CN 项目
+- 当前在开发 Openclaw-CNtermux 项目
 EOF
 ```
 
@@ -273,8 +273,8 @@ openclaw-cn memory search "偏好"
 ### 5. 检查记忆状态
 
 ```bash
-openclaw-cn memory status
-openclaw-cn memory status --deep
+openclaw-termux memory status
+openclaw-termux memory status --deep
 ```
 
 ---
@@ -294,11 +294,11 @@ openclaw-cn memory status --deep
 
 QMD 使用以下 GGUF 模型（首次使用时自动下载）：
 
-| 模型 | 用途 | 大小 |
-|---|---|---|
+| 模型                       | 用途         | 大小    |
+| -------------------------- | ------------ | ------- |
 | `embeddinggemma-300M-Q8_0` | 文本向量嵌入 | ~330 MB |
-| `qmd-query-expansion-1.7B` | 查询扩展 | ~1.3 GB |
-| `qwen3-reranker-0.6b-q8_0` | 结果重排序 | ~640 MB |
+| `qmd-query-expansion-1.7B` | 查询扩展     | ~1.3 GB |
+| `qwen3-reranker-0.6b-q8_0` | 结果重排序   | ~640 MB |
 
 模型缓存路径：`~/.cache/qmd/models/`
 
@@ -333,14 +333,14 @@ QMD 使用以下 GGUF 模型（首次使用时自动下载）：
 
 ### QMD 与内置搜索的区别
 
-| 特性 | 内置搜索 | QMD |
-|---|---|---|
-| 依赖 | 无额外依赖 | 需安装 QMD + 下载模型 |
-| API 密钥 | 需要嵌入提供商密钥 | 不需要 |
+| 特性     | 内置搜索                | QMD                             |
+| -------- | ----------------------- | ------------------------------- |
+| 依赖     | 无额外依赖              | 需安装 QMD + 下载模型           |
+| API 密钥 | 需要嵌入提供商密钥      | 不需要                          |
 | 搜索质量 | BM25 + 向量（远程嵌入） | 查询扩展 + BM25 + 向量 + 重排序 |
-| 离线可用 | 仅 BM25（无远程嵌入时） | 完全离线 |
-| 磁盘占用 | 极小 | ~2.5 GB（模型） |
-| 首次查询 | 快 | 较慢（加载模型） |
+| 离线可用 | 仅 BM25（无远程嵌入时） | 完全离线                        |
+| 磁盘占用 | 极小                    | ~2.5 GB（模型）                 |
+| 首次查询 | 快                      | 较慢（加载模型）                |
 
 ---
 
@@ -350,10 +350,10 @@ QMD 使用以下 GGUF 模型（首次使用时自动下载）：
 
 记忆搜索后端。设为 `"qmd"` 启用 QMD。
 
-| 值 | 说明 |
-|---|---|
-| `"builtin"` | 默认内置搜索 |
-| `"qmd"` | 使用 QMD 本地语义搜索 |
+| 值          | 说明                  |
+| ----------- | --------------------- |
+| `"builtin"` | 默认内置搜索          |
+| `"qmd"`     | 使用 QMD 本地语义搜索 |
 
 ### `memory.qmd.command`
 
@@ -363,11 +363,11 @@ QMD 可执行文件路径。默认：`"qmd"`（从 PATH 查找）。
 
 搜索模式。默认：`"query"`。
 
-| 值 | 说明 |
-|---|---|
-| `"query"` | 完整语义搜索（查询扩展 + BM25 + 向量 + 重排序） |
-| `"search"` | 仅 BM25 关键词搜索 |
-| `"vsearch"` | 仅向量搜索 |
+| 值          | 说明                                            |
+| ----------- | ----------------------------------------------- |
+| `"query"`   | 完整语义搜索（查询扩展 + BM25 + 向量 + 重排序） |
+| `"search"`  | 仅 BM25 关键词搜索                              |
+| `"vsearch"` | 仅向量搜索                                      |
 
 ### `memory.qmd.scope`
 
@@ -375,40 +375,41 @@ QMD 可执行文件路径。默认：`"qmd"`（从 PATH 查找）。
 
 ```json5
 {
-  default: "deny",  // 默认策略
+  default: "deny", // 默认策略
   rules: [
     { action: "allow", match: { chatType: "direct" } },
-    { action: "deny", match: { channel: "telegram", chatType: "group" } }
-  ]
+    { action: "deny", match: { channel: "telegram", chatType: "group" } },
+  ],
 }
 ```
 
 `match` 支持的字段：
+
 - `chatType`：`"direct"` | `"group"` | `"channel"`
 - `channel`：频道名称（如 `"telegram"`、`"feishu"`、`"slack"`）
 - `keyPrefix`：会话键前缀匹配
 
 ### `memory.qmd.limits`
 
-| 字段 | 默认值 | 说明 |
-|---|---|---|
-| `maxResults` | `6` | 最大返回结果数 |
-| `maxSnippetChars` | `700` | 每个结果片段最大字符数 |
-| `maxInjectedChars` | `4000` | 注入上下文窗口的最大总字符数 |
-| `timeoutMs` | `4000` | 查询超时（毫秒），低配设备建议设为 `30000` |
+| 字段               | 默认值 | 说明                                       |
+| ------------------ | ------ | ------------------------------------------ |
+| `maxResults`       | `6`    | 最大返回结果数                             |
+| `maxSnippetChars`  | `700`  | 每个结果片段最大字符数                     |
+| `maxInjectedChars` | `4000` | 注入上下文窗口的最大总字符数               |
+| `timeoutMs`        | `4000` | 查询超时（毫秒），低配设备建议设为 `30000` |
 
 ### `memory.qmd.update`
 
-| 字段 | 默认值 | 说明 |
-|---|---|---|
-| `interval` | `"5m"` | 自动更新索引间隔（支持 `s`/`m`/`h` 后缀） |
-| `debounceMs` | `15000` | 文件变更后的防抖等待时间 |
-| `onBoot` | `true` | 网关启动时自动更新索引 |
-| `waitForBootSync` | `false` | 是否阻塞启动直到索引更新完成 |
-| `embedInterval` | `"60m"` | 嵌入向量更新间隔 |
-| `commandTimeoutMs` | `30000` | collection 操作超时 |
-| `updateTimeoutMs` | `120000` | 索引更新超时 |
-| `embedTimeoutMs` | `120000` | 嵌入更新超时 |
+| 字段               | 默认值   | 说明                                      |
+| ------------------ | -------- | ----------------------------------------- |
+| `interval`         | `"5m"`   | 自动更新索引间隔（支持 `s`/`m`/`h` 后缀） |
+| `debounceMs`       | `15000`  | 文件变更后的防抖等待时间                  |
+| `onBoot`           | `true`   | 网关启动时自动更新索引                    |
+| `waitForBootSync`  | `false`  | 是否阻塞启动直到索引更新完成              |
+| `embedInterval`    | `"60m"`  | 嵌入向量更新间隔                          |
+| `commandTimeoutMs` | `30000`  | collection 操作超时                       |
+| `updateTimeoutMs`  | `120000` | 索引更新超时                              |
+| `embedTimeoutMs`   | `120000` | 嵌入更新超时                              |
 
 ### `memory.qmd.paths`
 
@@ -429,8 +430,8 @@ paths: [
 
 实验性功能：索引会话记录。
 
-| 字段 | 默认值 | 说明 |
-|---|---|---|
-| `enabled` | `false` | 是否启用 |
-| `exportDir` | 自动 | 会话导出目录 |
-| `retentionDays` | 无限制 | 保留天数 |
+| 字段            | 默认值  | 说明         |
+| --------------- | ------- | ------------ |
+| `enabled`       | `false` | 是否启用     |
+| `exportDir`     | 自动    | 会话导出目录 |
+| `retentionDays` | 无限制  | 保留天数     |
