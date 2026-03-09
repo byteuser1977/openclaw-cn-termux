@@ -8,7 +8,7 @@ read_when:
 # 卸载
 
 两种方式：
-- **简单方式**：如果 `openclaw-cn` 仍然安装。
+- **简单方式**：如果 `openclaw-termux` 仍然安装。
 - **手动服务删除**：如果 CLI 已删除但服务仍在运行。
 
 ## 简单方式（CLI 仍然安装）
@@ -16,14 +16,14 @@ read_when:
 推荐：使用内置卸载器：
 
 ```bash
-openclaw-cn uninstall
+openclaw-termux uninstall
 ```
 
 非交互式（自动化 / npx）：
 
 ```bash
-openclaw-cn uninstall --all --yes --non-interactive
-npx -y openclaw-cn uninstall --all --yes --non-interactive
+openclaw-termux uninstall --all --yes --non-interactive
+npx -y openclaw-termux uninstall --all --yes --non-interactive
 ```
 
 手动步骤（相同效果）：
@@ -31,13 +31,13 @@ npx -y openclaw-cn uninstall --all --yes --non-interactive
 1) 停止 gateway 服务：
 
 ```bash
-openclaw-cn gateway stop
+openclaw-termux gateway stop
 ```
 
 2) 卸载 gateway 服务（launchd/systemd/schtasks）：
 
 ```bash
-openclaw-cn gateway uninstall
+openclaw-termux gateway uninstall
 ```
 
 3) 删除状态 + 配置：
@@ -69,9 +69,9 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\clawd"
 5) 删除 CLI 安装（选择你使用的那个）：
 
 ```bash
-npm rm -g openclaw-cn
-pnpm remove -g openclaw-cn
-bun remove -g openclaw-cn
+npm rm -g openclaw-termux
+pnpm remove -g openclaw-termux
+bun remove -g openclaw-termux
 ```
 
 6) 如果你安装了 macOS 应用：

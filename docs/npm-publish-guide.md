@@ -99,13 +99,13 @@ pnpm publish --access public
 
 ```bash
 # 查看包信息
-npm view openclaw-cn
+npm view openclaw-termux
 
 # 安装测试
-npm install -g openclaw-cn
+npm install -g openclaw-termux
 
 # 验证版本
-openclaw-cn --version
+openclaw-termux --version
 ```
 
 ## 版本管理建议

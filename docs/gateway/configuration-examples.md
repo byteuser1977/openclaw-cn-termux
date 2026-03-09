@@ -1,9 +1,9 @@
 ---
 summary: "常见 openclaw-cn 设置的符合 Schema 规范的配置示例"
 read_when:
-  - 学习如何配置 openclaw-cn
+  - 学习如何配置 openclaw-termux
   - 查找配置示例
-  - 首次设置 openclaw-cn
+  - 首次设置 openclaw-termux
 ---
 # 配置示例
 
