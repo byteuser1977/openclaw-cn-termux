@@ -27,7 +27,7 @@ import type { ToolsConfig } from "./types.tools.js";
 
 export type ClawdbotConfig = {
   meta?: {
-    /** Last openclaw-cn version that wrote this config. */
+    /** Last openclaw-termux version that wrote this config. */
     lastTouchedVersion?: string;
     /** ISO timestamp when this config was last written. */
     lastTouchedAt?: string;

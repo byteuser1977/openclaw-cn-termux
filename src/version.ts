@@ -12,7 +12,7 @@ function readVersionFromPackageJson(): string | null {
   }
 }
 
-// Single source of truth for the current openclaw-cn version.
+// Single source of truth for the current openclaw-termux version.
 // - Embedded/bundled builds: injected define or env var.
 // - Dev/npm builds: package.json.
 export const VERSION =

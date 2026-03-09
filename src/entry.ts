@@ -7,15 +7,12 @@ import process from "node:process";
 import { overloadOsNetworkInterfaces } from "./utils/os-overload.js";
 overloadOsNetworkInterfaces();
 
-
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 import { isTruthyEnvValue } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warnings.js";
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
 
-
-
-process.title = "openclaw-cn";
+process.title = "openclaw-termux";
 installProcessWarningFilter();
 
 if (process.argv.includes("--no-color")) {
@@ -56,7 +53,7 @@ function ensureExperimentalWarningSuppressed(): boolean {
 
   child.once("error", (error) => {
     console.error(
-      "[openclaw-cn] 重新生成CLI失败：",
+      "[openclaw-termux] 重新生成CLI失败：",
       error instanceof Error ? (error.stack ?? error.message) : error,
     );
     process.exit(1);
@@ -131,7 +128,7 @@ if (!ensureExperimentalWarningSuppressed()) {
   const parsed = parseCliProfileArgs(process.argv);
   if (!parsed.ok) {
     // Keep it simple; Commander will handle rich help/errors after we strip flags.
-    console.error(`[openclaw-cn] ${parsed.error}`);
+    console.error(`[openclaw-termux] ${parsed.error}`);
     process.exit(2);
   }
 
@@ -145,7 +142,7 @@ if (!ensureExperimentalWarningSuppressed()) {
     .then(({ runCli }) => runCli(process.argv))
     .catch((error) => {
       console.error(
-        "[openclaw-cn] 启动CLI失败：",
+        "[openclaw-termux] 启动CLI失败：",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;

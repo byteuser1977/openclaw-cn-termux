@@ -5,7 +5,7 @@
   "type": "module",
   "dependencies": {
     "@sinclair/typebox": "0.34.47",
-    "clawdbot": "workspace:openclaw-cn@*"
+    "clawdbot": "workspace:openclaw-termux@*"
   },
   "clawdbot": {
     "extensions": [

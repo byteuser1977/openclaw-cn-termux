@@ -1,17 +1,17 @@
 {
-  "name": "openclaw-cn",
-  "version": "0.1.7-fix5",
-  "description": "Openclaw 中文社区版 - WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
+  "name": "openclaw-termux",
+  "version": "0.1.0",
+  "description": "Openclaw Termux 版 - WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "keywords": [],
   "license": "MIT",
   "author": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jiulingyun/openclaw-cn"
+    "url": "https://github.com/byteuser1977/openclaw-cn-termux"
   },
   "bin": {
-    "clawdbot-cn": "dist/entry.js",
-    "openclaw-cn": "dist/entry.js"
+    "clawdbot-termux": "dist/entry.js",
+    "openclaw-termux": "dist/entry.js"
   },
   "files": [
     "CHANGELOG.md",
@@ -103,7 +103,7 @@
     "ui:dev": "node scripts/ui.js dev",
     "ui:build": "node scripts/ui.js build",
     "start": "node scripts/run-node.mjs",
-    "openclaw-cn": "node scripts/run-node.mjs",
+    "openclaw-termux": "node scripts/run-node.mjs",
     "gateway:watch": "node scripts/watch-node.mjs gateway --force",
     "gateway:dev": "CLAWDBOT_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway",
     "gateway:dev:reset": "CLAWDBOT_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway --reset",
@@ -264,6 +264,7 @@
       "hono": "4.11.10",
       "tar": "7.5.4",
       "openclaw": "link:.",
+      "openclaw-cn": "link:.",
       "libsignal": "npm:@openclaw-cn/libsignal@2.0.1"
     },
     "patchedDependencies": {
