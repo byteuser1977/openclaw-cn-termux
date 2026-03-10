@@ -23,6 +23,7 @@ import type { OnboardOptions } from "../commands/onboard-types.js";
 import type { ClawdbotConfig } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
+import { isRunningInTermux } from "../daemon/proot.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { runTui } from "../tui/tui.js";
@@ -62,15 +63,17 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   };
 
   const systemdAvailable =
-    process.platform === "linux" ? await isSystemdUserServiceAvailable() : true;
-  if (process.platform === "linux" && !systemdAvailable) {
+    process.platform === "linux" && !isRunningInTermux()
+      ? await isSystemdUserServiceAvailable()
+      : true;
+  if (process.platform === "linux" && !isRunningInTermux() && !systemdAvailable) {
     await prompter.note(
       "Systemd user services are unavailable. Skipping lingering checks and service install.",
       "Systemd",
     );
   }
 
-  if (process.platform === "linux" && systemdAvailable) {
+  if (process.platform === "linux" && !isRunningInTermux() && systemdAvailable) {
     const { ensureSystemdUserLingerInteractive } = await import("../commands/systemd-linger.js");
     await ensureSystemdUserLingerInteractive({
       runtime,
@@ -89,7 +92,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   let installDaemon: boolean;
   if (explicitInstallDaemon !== undefined) {
     installDaemon = explicitInstallDaemon;
-  } else if (process.platform === "linux" && !systemdAvailable) {
+  } else if (process.platform === "linux" && !isRunningInTermux() && !systemdAvailable) {
     installDaemon = false;
   } else if (flow === "quickstart") {
     installDaemon = true;
@@ -100,7 +103,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     });
   }
 
-  if (process.platform === "linux" && !systemdAvailable && installDaemon) {
+  if (process.platform === "linux" && !isRunningInTermux() && !systemdAvailable && installDaemon) {
     await prompter.note(
       "Systemd user services are unavailable; skipping service install. Use your container supervisor or `docker compose up -d`.",
       "Gateway service",
