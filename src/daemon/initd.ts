@@ -188,6 +188,19 @@ export async function installInitdService({
   await fs.writeFile(scriptPath, script, "utf8");
   await fs.chmod(scriptPath, 0o755);
 
+  // 创建到 /etc/init.d/ 的链接
+  const etcInitdPath = "/etc/init.d/openclaw-gateway";
+  try {
+    // 尝试删除已存在的链接
+    await fs.unlink(etcInitdPath).catch(() => {});
+    // 创建符号链接
+    await fs.symlink(scriptPath, etcInitdPath);
+    stdout.write(`${formatLine("Linked to system init.d", etcInitdPath)}\n`);
+  } catch (error) {
+    stdout.write(`Warning: Failed to create symlink in /etc/init.d/: ${String(error)}\n`);
+    stdout.write("You may need to run this command with sudo privileges\n");
+  }
+
   // 启动服务
   const startResult = await executeCommand(scriptPath, ["start"], {
     encoding: "utf8",
@@ -210,6 +223,7 @@ export async function uninstallInitdService({
   await assertInitdAvailable();
 
   const scriptPath = resolveInitdScriptPath(env);
+  const etcInitdPath = "/etc/init.d/openclaw-gateway";
 
   try {
     // 停止服务
@@ -225,6 +239,14 @@ export async function uninstallInitdService({
     stdout.write(`${formatLine("Removed init.d service", scriptPath)}\n`);
   } catch {
     stdout.write(`Init.d service not found at ${scriptPath}\n`);
+  }
+
+  // 删除 /etc/init.d/ 中的链接
+  try {
+    await fs.unlink(etcInitdPath);
+    stdout.write(`${formatLine("Removed system init.d link", etcInitdPath)}\n`);
+  } catch (error) {
+    stdout.write(`Warning: Failed to remove symlink in /etc/init.d/: ${String(error)}\n`);
   }
 }
 
