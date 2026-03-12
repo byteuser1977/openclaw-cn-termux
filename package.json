@@ -1,5 +1,5 @@
 {
-  "name": "openclaw-termux",
+  "name": "@openclaw-cn/termux",
   "version": "0.1.7",
   "description": "Openclaw Termux 版 - WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "keywords": [],
@@ -7,7 +7,7 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/byteuser1977/openclaw-cn-termux"
+    "url": "git+https://github.com/byteuser1977/openclaw-cn-termux.git"
   },
   "bin": {
     "clawdbot-termux": "dist/entry.js",
