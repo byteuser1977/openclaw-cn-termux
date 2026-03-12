@@ -1,4 +1,4 @@
-import { stripReasoningTagsFromText } from "../../../src/shared/text/reasoning-tags.js";
+import { stripReasoningTagsFromText } from "./shared/reasoning-tags.js";
 
 export function formatMs(ms?: number | null): string {
   if (!ms && ms !== 0) return "n/a";
@@ -42,7 +42,10 @@ export function clampText(value: string, max = 120): string {
   return `${value.slice(0, Math.max(0, max - 1))}…`;
 }
 
-export function truncateText(value: string, max: number): {
+export function truncateText(
+  value: string,
+  max: number,
+): {
   text: string;
   truncated: boolean;
   total: number;
