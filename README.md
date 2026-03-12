@@ -1,4 +1,4 @@
-# 🧞 Openclaw-termux
+# 🧞 Openclaw-cn-termux
 
 **私有化部署的 AI 智能助手，适配 Termux 移动端环境。**
 
@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/openclaw-termux"><img src="https://img.shields.io/npm/v/openclaw-termux?style=for-the-badge&logo=npm&logoColor=white&label=npm" alt="npm 版本"></a>
+  <a href="https://www.npmjs.com/package/openclaw-cn-termux"><img src="https://img.shields.io/npm/v/openclaw-cn-termux?style=for-the-badge&logo=npm&logoColor=white&label=npm" alt="npm 版本"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-%E2%89%A5%2022-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js 版本"></a>
-  <a href="https://github.com/jiulingyun/openclaw-termux"><img src="https://img.shields.io/github/stars/jiulingyun/openclaw-termux?style=for-the-badge&logo=github&label=Stars" alt="GitHub Stars"></a>
+  <a href="https://github.com/byteuser1977/openclaw-cn-termux"><img src="https://img.shields.io/github/stars/byteuser1977/openclaw-cn-termux?style=for-the-badge&logo=github&label=Stars" alt="GitHub Stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-MIT-blue.svg?style=for-the-badge" alt="MIT 许可证"></a>
 </p>
 
@@ -37,7 +37,7 @@
 
 ```bash
 # 安装
-npm install -g openclaw-termux@latest
+npm install -g openclaw-cn-termux@latest
 
 # 运行安装向导
 openclaw-termux onboard --install-daemon
@@ -51,16 +51,16 @@ openclaw-termux gateway --port 18789 --verbose
 ### npm（推荐）
 
 ```bash
-npm install -g openclaw-termux@latest
+npm install -g openclaw-cn-termux@latest
 # 或
-pnpm add -g openclaw-termux@latest
+pnpm add -g openclaw-cn-termux@latest
 ```
 
 ### 从源码构建
 
 ```bash
-git clone https://github.com/byteuser1977/openclaw-termux.git
-cd openclaw-termux
+git clone https://github.com/byteuser1977/openclaw-cn-termux.git
+cd openclaw-cn-termux
 
 pnpm install
 pnpm ui:build
@@ -71,7 +71,7 @@ pnpm openclaw-termux onboard --install-daemon
 
 ## 🔧 配置
 
-最小配置 `~/.openclaw-termux/openclaw.json`：
+最小配置 `~/.openclaw-cn-termux/openclaw.json`：
 
 ```json
 {
@@ -129,11 +129,11 @@ pnpm openclaw-termux onboard --install-daemon
 
 ## ⭐ Star 趋势
 
-<a href="https://star-history.com/#jiulingyun/openclaw-termux&Date">
+<a href="https://star-history.com/#byteuser1977/openclaw-cn-termux&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jiulingyun/openclaw-termux&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jiulingyun/openclaw-termux&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jiulingyun/openclaw-cn&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=byteuser1977/openclaw-cn-termux&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=byteuser1977/openclaw-cn-termux&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=byteuser1977/openclaw-cn-termux&type=Date" />
  </picture>
 </a>
 
