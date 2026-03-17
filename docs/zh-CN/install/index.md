@@ -14,8 +14,17 @@ title: "安装"
 ## 系统要求
 
 - **[Node 22+](/install/node)**（[安装脚本](#安装方式)会在缺失时自动安装）
-- macOS、Linux 或 Windows
+- macOS、Linux、Windows、Android Termux 或 AidLux
 - 仅从源码构建时需要 `pnpm`
+
+### 移动端支持
+
+本项目完全支持在 Android 移动端运行：
+
+- **Termux**：在 Android 设备上通过 Termux 应用运行完整的 Linux 环境
+- **AidLux**：在 AidLux APP 中运行，提供更完善的 Linux 体验和系统集成
+
+在 Termux 和 AidLux 环境中，系统会自动检测并使用 init.d 服务管理，而不是 systemd。
 
 <Note>
 在 Windows 上，我们强烈建议在 [WSL2](https://learn.microsoft.com/zh-cn/windows/wsl/install) 下运行 OpenClaw。

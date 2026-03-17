@@ -1,8 +1,8 @@
 # 🧞 Openclaw-cn-termux
 
-**私有化部署的 AI 智能助手，适配 Termux 移动端环境。**
+**私有化部署的 AI 智能助手，适配 Termux 和 AidLux 移动端环境。**
 
-> ⚠️ **声明：** 本项目是基于 Openclaw-cn 的 Termux 移动端适配版本，专为在 Android Termux 环境中运行而设计。本项目已将所有 GitHub 依赖包构建为 npm 包，让国内用户使用淘宝镜像源可快速下载。
+> ⚠️ **声明：** 本项目是基于 Openclaw-cn 的移动端适配版本，专为在 Android Termux 和 AidLux 环境中运行而设计。本项目已将所有 GitHub 依赖包构建为 npm 包，让国内用户使用淘宝镜像源可快速下载。
 
 <p align="center">
   <img src="docs/images/main-view.png" alt="Openclaw Termux 控制界面" width="800">
@@ -23,7 +23,7 @@
 
 ## ✨ 特性
 
-- **📱 Termux 优化** — 专为 Android Termux 环境设计，移动端也能运行 AI 助手
+- **📱 Termux + AidLux 优化** — 专为 Android Termux 和 AidLux 环境设计，移动端也能运行 AI 助手
 - **🇨🇳 完整中文化** — CLI、Web 控制界面、配置向导全部汉化
 - **🏠 本地优先** — 数据存储在你自己的设备上，隐私可控
 - **� 多渠道支持** — WhatsApp、Telegram、Slack、Discord、Signal 等
@@ -33,7 +33,7 @@
 
 ## 🚀 快速开始
 
-**环境要求：** Node.js ≥ 22，推荐在 Android Termux 环境中运行
+**环境要求：** Node.js ≥ 22，推荐在 Android Termux 或 AidLux 环境中运行
 
 ```bash
 # 安装
