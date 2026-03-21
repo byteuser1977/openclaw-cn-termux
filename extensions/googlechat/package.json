@@ -10,7 +10,7 @@
     "clawdbot": "workspace:openclaw-cn@*"
   },
   "peerDependencies": {
-    "clawdbot": ">=2026.1.25"
+    "openclaw-cn": ">=2026.1.29"
   },
   "clawdbot": {
     "extensions": [
