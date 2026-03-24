@@ -304,6 +304,18 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       formatAllowFrom: ({ allowFrom }) => allowFrom.map(String),
     },
   },
+  "openclaw-weixin": {
+    id: "openclaw-weixin",
+    capabilities: {
+      chatTypes: ["direct", "channel"],
+      media: true,
+    },
+    outbound: { textChunkLimit: 4000 },
+    config: {
+      resolveAllowFrom: () => [],
+      formatAllowFrom: ({ allowFrom }) => allowFrom.map(String),
+    },
+  },
   qqbot: {
     id: "qqbot",
     capabilities: {

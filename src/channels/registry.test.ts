@@ -11,6 +11,8 @@ describe("channel registry", () => {
     expect(normalizeChatChannelId("imsg")).toBe("imessage");
     expect(normalizeChatChannelId("gchat")).toBe("googlechat");
     expect(normalizeChatChannelId("google-chat")).toBe("googlechat");
+    expect(normalizeChatChannelId("weixin")).toBe("openclaw-weixin");
+    expect(normalizeChatChannelId("wechat")).toBe("openclaw-weixin");
     expect(normalizeChatChannelId("web")).toBeNull();
   });
 

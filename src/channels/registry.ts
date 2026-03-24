@@ -12,6 +12,7 @@ export const CHAT_CHANNEL_ORDER = [
   "feishu",
   "dingtalk-connector",
   "wecom",
+  "openclaw-weixin",
   "qqbot",
   "slack",
   "signal",
@@ -102,6 +103,16 @@ const CHAT_CHANNEL_META: Record<ChatChannelId, ChannelMeta> = {
     blurb: "企业微信机器人接入插件。",
     systemImage: "message",
   },
+  "openclaw-weixin": {
+    id: "openclaw-weixin",
+    label: "微信",
+    selectionLabel: "微信 (官方插件)",
+    detailLabel: "微信机器人",
+    docsPath: "/channels/openclaw-weixin",
+    docsLabel: "openclaw-weixin",
+    blurb: "微信渠道插件（扫码登录），由腾讯官方插件提供。",
+    systemImage: "message",
+  },
   qqbot: {
     id: "qqbot",
     label: "QQ",
@@ -152,6 +163,8 @@ export const CHAT_CHANNEL_ALIASES: Record<string, ChatChannelId> = {
   dingding: "dingtalk-connector",
   wxwork: "wecom",
   "wechat-work": "wecom",
+  weixin: "openclaw-weixin",
+  wechat: "openclaw-weixin",
   qq: "qqbot",
   "qq-bot": "qqbot",
 };

@@ -1,0 +1,78 @@
+{
+  "name": "@openclaw-cn/openclaw-weixin",
+  "version": "0.1.0",
+  "description": "微信 OpenClaw 渠道插件入口，接入腾讯官方 @tencent-weixin/openclaw-weixin。",
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "wechat",
+    "weixin"
+  ],
+  "homepage": "https://github.com/openclaw/openclaw-cn/tree/main/extensions/openclaw-weixin",
+  "bugs": {
+    "url": "https://github.com/openclaw/openclaw-cn/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openclaw/openclaw-cn.git",
+    "directory": "extensions/openclaw-weixin"
+  },
+  "files": [
+    "openclaw.plugin.json",
+    "package.json",
+    "dist/"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "openclaw": "*",
+    "openclaw-cn": "*"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    },
+    "openclaw-cn": {
+      "optional": true
+    }
+  },
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ],
+    "channel": {
+      "id": "openclaw-weixin",
+      "label": "微信",
+      "selectionLabel": "微信 (官方插件)",
+      "docsPath": "/channels/openclaw-weixin",
+      "docsLabel": "openclaw-weixin",
+      "blurb": "微信渠道插件（扫码登录），由腾讯官方插件提供。",
+      "aliases": [
+        "weixin",
+        "wechat"
+      ],
+      "order": 47
+    },
+    "install": {
+      "npmSpec": "@tencent-weixin/openclaw-weixin@latest",
+      "officialSpec": "@tencent-weixin/openclaw-weixin@latest",
+      "defaultChoice": "official"
+    }
+  }
+}

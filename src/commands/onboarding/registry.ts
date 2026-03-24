@@ -2,6 +2,7 @@ import { listChannelPlugins } from "../../channels/plugins/index.js";
 import type { ChannelChoice } from "../onboard-types.js";
 import type { ChannelOnboardingAdapter } from "./types.js";
 import { dingtalkConnectorOnboardingAdapter } from "./dingtalk-connector.js";
+import { openclawWeixinOnboardingAdapter } from "./openclaw-weixin.js";
 import { wecomConnectorOnboardingAdapter } from "./wecom-connector.js";
 import { qqbotOnboardingAdapter } from "./qqbot.js";
 
@@ -10,6 +11,7 @@ import { qqbotOnboardingAdapter } from "./qqbot.js";
 const CORE_ONBOARDING_ADAPTERS: ReadonlyMap<ChannelChoice, ChannelOnboardingAdapter> = new Map([
   ["dingtalk-connector", dingtalkConnectorOnboardingAdapter],
   ["wecom", wecomConnectorOnboardingAdapter],
+  ["openclaw-weixin", openclawWeixinOnboardingAdapter],
   ["qqbot", qqbotOnboardingAdapter],
 ]);
 

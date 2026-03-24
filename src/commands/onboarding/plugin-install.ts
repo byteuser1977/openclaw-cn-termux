@@ -19,6 +19,22 @@ type InstallResult = {
   installed: boolean;
 };
 
+function normalizeSpecPackageId(spec: string | undefined): string {
+  const trimmed = spec?.trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("@")) {
+    const slash = trimmed.indexOf("/");
+    if (slash === -1) return trimmed;
+    const scope = trimmed.slice(0, slash);
+    const nameAndVersion = trimmed.slice(slash + 1);
+    const at = nameAndVersion.lastIndexOf("@");
+    const name = at > 0 ? nameAndVersion.slice(0, at) : nameAndVersion;
+    return `${scope}/${name}`;
+  }
+  const at = trimmed.lastIndexOf("@");
+  return at > 0 ? trimmed.slice(0, at) : trimmed;
+}
+
 function hasGitWorkspace(workspaceDir?: string): boolean {
   const candidates = new Set<string>();
   candidates.add(path.join(process.cwd(), ".git"));
@@ -107,7 +123,8 @@ async function promptInstallChoice(params: {
   // (i.e. no separate community build exists for this channel).
   const hasSeparateNpm =
     !entry.install.officialSpec ||
-    entry.install.npmSpec.trim() !== entry.install.officialSpec.trim();
+    normalizeSpecPackageId(entry.install.npmSpec) !==
+      normalizeSpecPackageId(entry.install.officialSpec);
   const npmOptions: Array<{ value: InstallChoice; label: string; hint?: string }> = hasSeparateNpm
     ? [{ value: "npm", label: `中文社区版 (${entry.install.npmSpec})` }]
     : [];

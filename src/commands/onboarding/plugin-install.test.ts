@@ -182,4 +182,38 @@ describe("ensureOnboardingPluginInstalled", () => {
     expect(note).toHaveBeenCalled();
     expect(runtime.error).not.toHaveBeenCalled();
   });
+
+  it("hides community option when npmSpec and officialSpec are same package", async () => {
+    const runtime = makeRuntime();
+    const select = vi.fn(async () => "skip") as WizardPrompter["select"];
+    const prompter = makePrompter({ select });
+    const cfg: ClawdbotConfig = {};
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    const entry: ChannelPluginCatalogEntry = {
+      ...baseEntry,
+      id: "openclaw-weixin",
+      meta: {
+        ...baseEntry.meta,
+        id: "openclaw-weixin",
+        label: "微信",
+      },
+      install: {
+        npmSpec: "@tencent-weixin/openclaw-weixin",
+        officialSpec: "@tencent-weixin/openclaw-weixin@latest",
+      },
+    };
+
+    await ensureOnboardingPluginInstalled({
+      cfg,
+      entry,
+      prompter,
+      runtime,
+    });
+
+    const firstCall = select.mock.calls[0]?.[0];
+    const values = (firstCall?.options ?? []).map((opt) => opt.value);
+    expect(values).not.toContain("npm");
+    expect(values).toContain("official");
+  });
 });
