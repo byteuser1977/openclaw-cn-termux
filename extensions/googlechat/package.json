@@ -7,10 +7,10 @@
     "google-auth-library": "^10.5.0"
   },
   "devDependencies": {
-    "clawdbot": "workspace:openclaw-cn@*"
+    "clawdbot": "workspace:openclaw-cn-termux@*"
   },
   "peerDependencies": {
-    "openclaw-cn": ">=2026.1.29"
+    "openclaw-cn-termux": ">=0.1.7"
   },
   "clawdbot": {
     "extensions": [
