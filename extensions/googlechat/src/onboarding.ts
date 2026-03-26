@@ -1,4 +1,4 @@
-import type { ClawdbotConfig, DmPolicy } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig, DmPolicy } from "openclaw-cn-termux/plugin-sdk";
 import {
   addWildcardAllowFrom,
   formatDocsLink,
@@ -9,7 +9,7 @@ import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   migrateBaseNameToDefaultAccount,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import {
   listGoogleChatAccountIds,

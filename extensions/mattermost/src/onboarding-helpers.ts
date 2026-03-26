@@ -1,5 +1,5 @@
-import type { ClawdbotConfig, WizardPrompter } from "openclaw-cn/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig, WizardPrompter } from "openclaw-cn-termux/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw-cn-termux/plugin-sdk";
 
 type PromptAccountIdParams = {
   cfg: ClawdbotConfig;

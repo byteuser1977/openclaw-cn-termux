@@ -4,13 +4,13 @@ import type {
   ClawdbotConfig,
   DmPolicy,
   WizardPrompter,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 import {
   addWildcardAllowFrom,
   DEFAULT_ACCOUNT_ID,
   formatDocsLink,
   promptChannelAccessConfig,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import { resolveMSTeamsCredentials } from "./token.js";
 import {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import type { PluginRuntime } from "openclaw-cn/plugin-sdk";
+import type { PluginRuntime } from "openclaw-cn-termux/plugin-sdk";
 import type { CoreConfig } from "./types.js";
 
 import { matrixPlugin } from "./channel.js";

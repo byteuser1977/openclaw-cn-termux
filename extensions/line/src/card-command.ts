@@ -1,4 +1,4 @@
-import type { ClawdbotPluginApi, LineChannelData, ReplyPayload } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotPluginApi, LineChannelData, ReplyPayload } from "openclaw-cn-termux/plugin-sdk";
 import {
   createActionCard,
   createImageCard,
@@ -7,7 +7,7 @@ import {
   createReceiptCard,
   type CardAction,
   type ListItem,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 const CARD_USAGE = `Usage: /card <type> "title" "body" [options]
 

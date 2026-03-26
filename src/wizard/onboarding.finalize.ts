@@ -97,7 +97,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   let installDaemon: boolean;
   if (explicitInstallDaemon !== undefined) {
     installDaemon = explicitInstallDaemon;
-    //  } else if (process.platform === "linux" && !systemdAvailable) {
+  //  } else if (process.platform === "linux" && !systemdAvailable) {
   } else if (process.platform === "linux" && !isRunningInTermux() && !systemdAvailable) {
     installDaemon = false;
   } else if (flow === "quickstart") {

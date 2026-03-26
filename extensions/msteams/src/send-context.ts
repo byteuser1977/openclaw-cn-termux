@@ -1,4 +1,4 @@
-import { resolveChannelMediaMaxBytes, type ClawdbotConfig, type PluginRuntime } from "openclaw-cn/plugin-sdk";
+import { resolveChannelMediaMaxBytes, type ClawdbotConfig, type PluginRuntime } from "openclaw-cn-termux/plugin-sdk";
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type {
   MSTeamsConversationStore,

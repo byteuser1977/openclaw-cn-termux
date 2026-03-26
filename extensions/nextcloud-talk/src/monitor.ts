@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 
-import type { RuntimeEnv } from "openclaw-cn/plugin-sdk";
+import type { RuntimeEnv } from "openclaw-cn-termux/plugin-sdk";
 
 import { resolveNextcloudTalkAccount } from "./accounts.js";
 import { handleNextcloudTalkInbound } from "./inbound.js";

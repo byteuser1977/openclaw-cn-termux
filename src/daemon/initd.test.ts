@@ -322,7 +322,7 @@ esac
     });
 
     it("should return null when no command found", async () => {
-      mockFs.readFile.mockResolvedValue("#!/bin/sh\nPIDFILE=\"/tmp/test.pid\"\n");
+      mockFs.readFile.mockResolvedValue("#!/bin/sh\nPIDFILE=\"/tmp/test.pid\"");
 
       const result = await readInitdServiceCommand(mockEnv);
 

@@ -1,5 +1,5 @@
 import type { MatrixRoomConfig } from "../../types.js";
-import { buildChannelKeyCandidates, resolveChannelEntryMatch } from "openclaw-cn/plugin-sdk";
+import { buildChannelKeyCandidates, resolveChannelEntryMatch } from "openclaw-cn-termux/plugin-sdk";
 
 export type MatrixRoomConfigResolved = {
   allowed: boolean;

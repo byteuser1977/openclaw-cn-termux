@@ -1,4 +1,4 @@
-import type { ChannelDirectoryEntry } from "openclaw-cn/plugin-sdk";
+import type { ChannelDirectoryEntry } from "openclaw-cn-termux/plugin-sdk";
 
 import { GRAPH_ROOT } from "./attachments/shared.js";
 import { loadMSTeamsSdkWithAuth } from "./sdk.js";

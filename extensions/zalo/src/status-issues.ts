@@ -1,4 +1,4 @@
-import type { ChannelAccountSnapshot, ChannelStatusIssue } from "openclaw-cn/plugin-sdk";
+import type { ChannelAccountSnapshot, ChannelStatusIssue } from "openclaw-cn-termux/plugin-sdk";
 
 type ZaloAccountStatus = {
   accountId?: unknown;

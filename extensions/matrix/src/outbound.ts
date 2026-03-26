@@ -1,4 +1,4 @@
-import type { ChannelOutboundAdapter } from "openclaw-cn/plugin-sdk";
+import type { ChannelOutboundAdapter } from "openclaw-cn-termux/plugin-sdk";
 
 import { getMatrixRuntime } from "./runtime.js";
 import { sendMessageMatrix, sendPollMatrix } from "./matrix/send.js";

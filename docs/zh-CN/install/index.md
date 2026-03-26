@@ -1,7 +1,7 @@
 ---
-summary: "安装 OpenClaw — 安装脚本、npm/pnpm、从源码构建、Docker 等"
+summary: "安装 OpenClaw-cn-termux — 安装脚本、npm/pnpm、从源码构建等"
 read_when:
-  - 你需要快速入门之外的安装方式
+  - 你需要在 Termux/AidLux 移动端环境安装
   - 你想部署到云平台
   - 你需要更新、迁移或卸载
 title: "安装"
@@ -9,16 +9,16 @@ title: "安装"
 
 # 安装
 
-已经完成了[快速入门](/start/getting-started)？那你已经准备好了 — 本页面提供其他安装方式、平台特定说明和维护信息。
+本项目是 **OpenClaw-cn 的移动端适配版本**，专为 Android Termux 和 AidLux 环境设计。
 
 ## 系统要求
 
 - **[Node 22+](/install/node)**（[安装脚本](#安装方式)会在缺失时自动安装）
-- macOS、Linux 或 Windows
+- **Android Termux** 或 **AidLux** 环境（移动端）
 - 仅从源码构建时需要 `pnpm`
 
 <Note>
-在 Windows 上，我们强烈建议在 [WSL2](https://learn.microsoft.com/zh-cn/windows/wsl/install) 下运行 OpenClaw。
+本版本适用于移动端环境。桌面端（macOS/Linux/Windows）请使用原版 <a href="https://github.com/jiulingyun/openclaw-cn">openclaw-cn</a>。
 </Note>
 
 ## 安装方式
@@ -71,15 +71,15 @@ title: "安装"
     <Tabs>
       <Tab title="npm">
         ```bash
-        npm install -g openclaw-cn@latest
-        openclaw-cn onboard --install-daemon
+        npm install -g openclaw-cn-termux@latest
+        openclaw-termux onboard --install-daemon
         ```
 
         <Accordion title="sharp 构建错误？">
           如果你全局安装了 libvips（macOS 上通过 Homebrew 安装较常见）导致 `sharp` 构建失败，可以强制使用预构建二进制文件：
 
           ```bash
-          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw-cn@latest
+          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw-cn-termux@latest
           ```
 
           如果看到 `sharp: Please add node-gyp to your dependencies`，可以安装构建工具（macOS: Xcode CLT + `npm install -g node-gyp`）或使用上述环境变量。
@@ -87,9 +87,9 @@ title: "安装"
       </Tab>
       <Tab title="pnpm">
         ```bash
-        pnpm add -g openclaw-cn@latest
-        pnpm approve-builds -g        # 批准 openclaw-cn、node-llama-cpp、sharp 等
-        openclaw-cn onboard --install-daemon
+        pnpm add -g openclaw-cn-termux@latest
+        pnpm approve-builds -g        # 批准 openclaw-cn-termux、node-llama-cpp、sharp 等
+        openclaw-termux onboard --install-daemon
         ```
 
         <Note>
@@ -116,17 +116,17 @@ title: "安装"
         ```
       </Step>
       <Step title="链接 CLI">
-        将 `openclaw-cn` 命令设为全局可用：
+        将 `openclaw-termux` 命令设为全局可用：
 
         ```bash
         pnpm link --global
         ```
 
-        也可以跳过链接，在仓库内通过 `pnpm openclaw-cn ...` 运行命令。
+        也可以跳过链接，在仓库内通过 `pnpm openclaw-termux ...` 运行命令。
       </Step>
       <Step title="运行初始配置">
         ```bash
-        openclaw-cn onboard --install-daemon
+        openclaw-termux onboard --install-daemon
         ```
       </Step>
     </Steps>
@@ -158,9 +158,9 @@ title: "安装"
 验证一切正常运行：
 
 ```bash
-openclaw-cn doctor         # 检查配置问题
-openclaw-cn status         # 网关状态
-openclaw-cn dashboard      # 打开浏览器管理界面
+openclaw-termux doctor         # 检查配置问题
+openclaw-termux status         # 网关状态
+openclaw-termux dashboard      # 打开浏览器管理界面
 ```
 
 如果你需要自定义运行时路径，可以使用：
@@ -171,7 +171,7 @@ openclaw-cn dashboard      # 打开浏览器管理界面
 
 详见[环境变量](/help/environment)了解优先级和完整说明。
 
-## 故障排除：找不到 `openclaw-cn` 命令
+## 故障排除：找不到 `openclaw-termux` 命令
 
 <Accordion title="PATH 诊断与修复">
   快速诊断：
@@ -183,7 +183,7 @@ npm prefix -g
 echo "$PATH"
 ```
 
-如果 `$(npm prefix -g)/bin`（macOS/Linux）或 `$(npm prefix -g)`（Windows）**不在**你的 `$PATH` 中，Shell 将无法找到全局 npm 二进制文件（包括 `openclaw-cn`）。
+如果 `$(npm prefix -g)/bin`（macOS/Linux）或 `$(npm prefix -g)`（Windows）**不在**你的 `$PATH` 中，Shell 将无法找到全局 npm 二进制文件（包括 `openclaw-termux`）。
 
 修复 — 将以下内容添加到你的 Shell 启动文件（`~/.zshrc` 或 `~/.bashrc`）：
 

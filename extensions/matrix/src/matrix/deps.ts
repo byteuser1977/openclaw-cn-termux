@@ -4,7 +4,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
-import type { RuntimeEnv } from "openclaw-cn/plugin-sdk";
+import type { RuntimeEnv } from "openclaw-cn-termux/plugin-sdk";
 
 const MATRIX_SDK_PACKAGE = "matrix-bot-sdk";
 

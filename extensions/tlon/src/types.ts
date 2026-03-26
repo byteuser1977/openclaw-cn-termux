@@ -1,4 +1,4 @@
-import type { ClawdbotConfig } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
 
 export type TlonResolvedAccount = {
   accountId: string;

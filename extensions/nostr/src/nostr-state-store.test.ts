@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
-import type { PluginRuntime } from "openclaw-cn/plugin-sdk";
+import type { PluginRuntime } from "openclaw-cn-termux/plugin-sdk";
 
 import {
   readNostrBusState,

@@ -3,7 +3,7 @@ import type { AddressInfo } from "node:net";
 
 import { describe, expect, it, vi } from "vitest";
 
-import type { ClawdbotConfig, PluginRuntime } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig, PluginRuntime } from "openclaw-cn-termux/plugin-sdk";
 import type { ResolvedZaloAccount } from "./types.js";
 import { handleZaloWebhookRequest, registerZaloWebhookTarget } from "./monitor.js";
 

@@ -1,4 +1,4 @@
-import type { ClawdbotConfig, RuntimeEnv } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig, RuntimeEnv } from "openclaw-cn-termux/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import {
   buildFileInfoCard,

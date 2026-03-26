@@ -1,4 +1,4 @@
-import type { MSTeamsConfig } from "openclaw-cn/plugin-sdk";
+import type { MSTeamsConfig } from "openclaw-cn-termux/plugin-sdk";
 
 export type MSTeamsCredentials = {
   appId: string;

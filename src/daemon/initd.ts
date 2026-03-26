@@ -141,8 +141,6 @@ async function executeCommand(
 }
 
 async function assertInitdAvailable() {
-  // init.d is always available on systems that don't have systemd
-  // No need for special checks
 }
 
 export async function installInitdService({
@@ -188,12 +186,9 @@ export async function installInitdService({
   await fs.writeFile(scriptPath, script, "utf8");
   await fs.chmod(scriptPath, 0o755);
 
-  // 创建到 /etc/init.d/ 的链接
   const etcInitdPath = "/etc/init.d/openclaw-gateway";
   try {
-    // 尝试删除已存在的链接
     await fs.unlink(etcInitdPath).catch(() => {});
-    // 创建符号链接
     await fs.symlink(scriptPath, etcInitdPath);
     stdout.write(`${formatLine("Linked to system init.d", etcInitdPath)}\n`);
   } catch (error) {
@@ -201,7 +196,6 @@ export async function installInitdService({
     stdout.write("You may need to run this command with sudo privileges\n");
   }
 
-  // 启动服务
   const startResult = await executeCommand(scriptPath, ["start"], {
     encoding: "utf8",
   });
@@ -226,12 +220,10 @@ export async function uninstallInitdService({
   const etcInitdPath = "/etc/init.d/openclaw-gateway";
 
   try {
-    // 停止服务
     await executeCommand(scriptPath, ["stop"], {
       encoding: "utf8",
     });
   } catch {
-    // 忽略停止错误
   }
 
   try {
@@ -241,7 +233,6 @@ export async function uninstallInitdService({
     stdout.write(`Init.d service not found at ${scriptPath}\n`);
   }
 
-  // 删除 /etc/init.d/ 中的链接
   try {
     await fs.unlink(etcInitdPath);
     stdout.write(`${formatLine("Removed system init.d link", etcInitdPath)}\n`);
@@ -364,7 +355,6 @@ export async function readInitdServiceCommand(env: Record<string, string | undef
       const line = rawLine.trim();
       if (line.startsWith("CMD=")) {
         cmdLine = line.slice("CMD=".length).trim();
-        // 移除引号
         cmdLine = cmdLine.replace(/^"|"$/g, "");
       } else if (line.startsWith("WORKDIR=")) {
         workingDirectory = line.slice("WORKDIR=".length).trim();
@@ -379,7 +369,6 @@ export async function readInitdServiceCommand(env: Record<string, string | undef
 
     if (!cmdLine) return null;
 
-    // 解析命令参数
     const programArguments = [];
     let currentArg = "";
     let inQuotes = false;
