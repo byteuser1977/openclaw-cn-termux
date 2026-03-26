@@ -1,6 +1,6 @@
 {
   "name": "openclaw-cn-termux",
-  "version": "0.1.9-beta.7",
+  "version": "0.1.9-beta.8",
   "description": "Openclaw 中文社区版 - WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "keywords": [],
   "license": "MIT",
