@@ -1,5 +1,5 @@
-import type { ClawdbotPluginApi } from "openclaw-cn/plugin-sdk";
-import { emptyPluginConfigSchema } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotPluginApi } from "openclaw-cn-termux/plugin-sdk";
+import { emptyPluginConfigSchema } from "openclaw-cn-termux/plugin-sdk";
 
 import { zaloDock, zaloPlugin } from "./src/channel.js";
 import { handleZaloWebhookRequest } from "./src/monitor.js";

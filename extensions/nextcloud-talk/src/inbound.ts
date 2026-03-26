@@ -4,7 +4,7 @@ import {
   resolveControlCommandGate,
   type ClawdbotConfig,
   type RuntimeEnv,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 import {

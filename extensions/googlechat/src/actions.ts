@@ -2,14 +2,14 @@ import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
   ClawdbotConfig,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 import {
   createActionGate,
   jsonResult,
   readNumberParam,
   readReactionParams,
   readStringParam,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import { listEnabledGoogleChatAccounts, resolveGoogleChatAccount } from "./accounts.js";
 import {

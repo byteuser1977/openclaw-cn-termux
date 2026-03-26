@@ -21,7 +21,7 @@ import {
   type ChannelMessageActionAdapter,
   type ChannelPlugin,
   type ResolvedSignalAccount,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import { getSignalRuntime } from "./runtime.js";
 

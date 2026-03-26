@@ -1,3 +1,3 @@
-import type { GoogleChatAccountConfig, GoogleChatConfig } from "openclaw-cn/plugin-sdk";
+import type { GoogleChatAccountConfig, GoogleChatConfig } from "openclaw-cn-termux/plugin-sdk";
 
 export type { GoogleChatAccountConfig, GoogleChatConfig };

@@ -9,7 +9,7 @@ import {
   type ChannelPlugin,
   type ClawdbotConfig,
   type ChannelSetupInput,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import {
   listNextcloudTalkAccountIds,

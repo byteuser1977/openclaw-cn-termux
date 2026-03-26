@@ -1,4 +1,4 @@
-import type { ClawdbotConfig } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
 
 import type { ZaloFetch } from "./api.js";
 import { sendMessage, sendPhoto } from "./api.js";

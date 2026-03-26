@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw-cn/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw-cn-termux/plugin-sdk";
 
 import type { CoreConfig, NextcloudTalkAccountConfig } from "./types.js";
 

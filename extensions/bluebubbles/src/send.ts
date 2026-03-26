@@ -6,7 +6,7 @@ import {
   normalizeBlueBubblesHandle,
   parseBlueBubblesTarget,
 } from "./targets.js";
-import type { ClawdbotConfig } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
 import {
   blueBubblesFetchWithTimeout,
   buildBlueBubblesApiUrl,

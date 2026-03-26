@@ -106,7 +106,7 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): { prepend: string[]; ap
 }
 
 /**
- * Best-effort PATH bootstrap so skills that require the `clawdbot-cn` CLI can run
+ * Best-effort PATH bootstrap so skills that require the `clawdbot-termux` CLI can run
  * under launchd/minimal environments (and inside the macOS app bundle).
  */
 export function ensureClawdbotCliOnPath(opts: EnsureOpenClawPathOpts = {}) {

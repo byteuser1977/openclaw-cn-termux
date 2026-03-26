@@ -3,7 +3,7 @@ import {
   DEFAULT_ACCOUNT_ID,
   formatPairingApproveHint,
   type ChannelPlugin,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import { NostrConfigSchema } from "./config-schema.js";
 import { getNostrRuntime } from "./runtime.js";

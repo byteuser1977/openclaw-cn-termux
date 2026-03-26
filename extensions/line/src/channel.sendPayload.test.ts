@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ClawdbotConfig, PluginRuntime } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig, PluginRuntime } from "openclaw-cn-termux/plugin-sdk";
 import { linePlugin } from "./channel.js";
 import { setLineRuntime } from "./runtime.js";
 

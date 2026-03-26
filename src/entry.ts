@@ -3,6 +3,11 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 
+// Override os.networkInterfaces() method to resolve permission issues
+import { overloadOsNetworkInterfaces } from "./utils/os-overload.js";
+overloadOsNetworkInterfaces();
+
+
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 import { isTruthyEnvValue } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warnings.js";

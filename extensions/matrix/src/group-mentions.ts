@@ -1,4 +1,4 @@
-import type { ChannelGroupContext, GroupToolPolicyConfig } from "openclaw-cn/plugin-sdk";
+import type { ChannelGroupContext, GroupToolPolicyConfig } from "openclaw-cn-termux/plugin-sdk";
 
 import { resolveMatrixRoomConfig } from "./matrix/monitor/rooms.js";
 import type { CoreConfig } from "./types.js";

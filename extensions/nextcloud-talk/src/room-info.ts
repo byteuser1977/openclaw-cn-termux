@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-import type { RuntimeEnv } from "openclaw-cn/plugin-sdk";
+import type { RuntimeEnv } from "openclaw-cn-termux/plugin-sdk";
 
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 

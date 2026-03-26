@@ -1,4 +1,4 @@
-import type { ChannelGroupContext } from "openclaw-cn/plugin-sdk";
+import type { ChannelGroupContext } from "openclaw-cn-termux/plugin-sdk";
 
 import { resolveMattermostAccount } from "./mattermost/accounts.js";
 

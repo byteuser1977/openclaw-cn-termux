@@ -106,8 +106,8 @@ vi.mock("clawdbot/plugin-sdk", async () => {
   };
 });
 
-import type { ClawdbotPluginServiceContext } from "openclaw-cn/plugin-sdk";
-import { emitDiagnosticEvent } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotPluginServiceContext } from "openclaw-cn-termux/plugin-sdk";
+import { emitDiagnosticEvent } from "openclaw-cn-termux/plugin-sdk";
 import { createDiagnosticsOtelService } from "./service.js";
 
 function createLogger() {

@@ -1,5 +1,5 @@
-import type { ClawdbotConfig } from "openclaw-cn/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw-cn-termux/plugin-sdk";
 
 import { runZca, parseJsonOutput } from "./zca.js";
 import type { ResolvedZalouserAccount, ZalouserAccountConfig, ZalouserConfig } from "./types.js";

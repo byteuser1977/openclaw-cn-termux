@@ -1,4 +1,4 @@
-import type { ChannelOutboundAdapter } from "openclaw-cn/plugin-sdk";
+import type { ChannelOutboundAdapter } from "openclaw-cn-termux/plugin-sdk";
 
 import { createMSTeamsPollStoreFs } from "./polls.js";
 import { getMSTeamsRuntime } from "./runtime.js";

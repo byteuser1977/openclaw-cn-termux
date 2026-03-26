@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ClawdbotConfig } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
 
 import { zaloPlugin } from "./channel.js";
 

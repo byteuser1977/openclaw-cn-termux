@@ -1,5 +1,5 @@
-import type { ClawdbotPluginApi, ClawdbotConfig } from "openclaw-cn/plugin-sdk";
-import { emptyPluginConfigSchema } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotPluginApi, ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
+import { emptyPluginConfigSchema } from "openclaw-cn-termux/plugin-sdk";
 
 import { nostrPlugin } from "./src/channel.js";
 import { setNostrRuntime, getNostrRuntime } from "./src/runtime.js";

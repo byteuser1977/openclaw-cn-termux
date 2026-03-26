@@ -1,5 +1,5 @@
-import type { ClawdbotPluginApi } from "openclaw-cn/plugin-sdk";
-import { emptyPluginConfigSchema } from "openclaw-cn/plugin-sdk";
+import type { ClawdbotPluginApi } from "openclaw-cn-termux/plugin-sdk";
+import { emptyPluginConfigSchema } from "openclaw-cn-termux/plugin-sdk";
 
 import { linePlugin } from "./src/channel.js";
 import { registerLineCardCommand } from "./src/card-command.js";

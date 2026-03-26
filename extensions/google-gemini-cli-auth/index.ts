@@ -1,4 +1,4 @@
-import { emptyPluginConfigSchema } from "openclaw-cn/plugin-sdk";
+import { emptyPluginConfigSchema } from "openclaw-cn-termux/plugin-sdk";
 
 import { loginGeminiCliOAuth } from "./oauth.js";
 

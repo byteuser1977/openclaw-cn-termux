@@ -1,4 +1,4 @@
-import type { ChannelAccountSnapshot, ChannelPlugin, ClawdbotConfig } from "openclaw-cn/plugin-sdk";
+import type { ChannelAccountSnapshot, ChannelPlugin, ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
 import {
   applyAccountNameToChannelSection,
   buildChannelConfigSchema,
@@ -12,7 +12,7 @@ import {
   resolveBlueBubblesGroupRequireMention,
   resolveBlueBubblesGroupToolPolicy,
   setAccountEnabledInConfigSection,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
 
 import {
   listBlueBubblesAccountIds,

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { SILENT_REPLY_TOKEN, type PluginRuntime } from "openclaw-cn/plugin-sdk";
+import { SILENT_REPLY_TOKEN, type PluginRuntime } from "openclaw-cn-termux/plugin-sdk";
 import type { StoredConversationReference } from "./conversation-store.js";
 import {
   type MSTeamsAdapter,

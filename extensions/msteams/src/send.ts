@@ -1,5 +1,5 @@
-import { loadWebMedia, resolveChannelMediaMaxBytes } from "openclaw-cn/plugin-sdk";
-import type { ClawdbotConfig } from "openclaw-cn/plugin-sdk";
+import { loadWebMedia, resolveChannelMediaMaxBytes } from "openclaw-cn-termux/plugin-sdk";
+import type { ClawdbotConfig } from "openclaw-cn-termux/plugin-sdk";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import {
   classifyMSTeamsSendError,

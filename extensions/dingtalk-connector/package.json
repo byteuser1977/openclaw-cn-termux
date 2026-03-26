@@ -42,7 +42,7 @@
   },
   "peerDependencies": {
     "openclaw": "*",
-    "openclaw-cn": "*"
+    "openclaw-cn-termux": "*"
   },
   "peerDependenciesMeta": {
     "openclaw": {

@@ -16,8 +16,8 @@ import {
   type ChannelMessageActionAdapter,
   type ChannelPlugin,
   type ClawdbotConfig,
-} from "openclaw-cn/plugin-sdk";
-import { GoogleChatConfigSchema } from "openclaw-cn/plugin-sdk";
+} from "openclaw-cn-termux/plugin-sdk";
+import { GoogleChatConfigSchema } from "openclaw-cn-termux/plugin-sdk";
 
 import {
   listGoogleChatAccountIds,

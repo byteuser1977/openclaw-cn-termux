@@ -1,5 +1,5 @@
 import type { MatrixClient } from "matrix-bot-sdk";
-import type { PluginRuntime } from "openclaw-cn/plugin-sdk";
+import type { PluginRuntime } from "openclaw-cn-termux/plugin-sdk";
 
 import type { MatrixAuth } from "../client.js";
 import type { MatrixRawEvent } from "./types.js";
