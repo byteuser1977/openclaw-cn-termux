@@ -33,33 +33,41 @@
 
 ## 🚀 快速开始
 
-**环境要求：** Node.js ≥ 22，推荐在 Android Termux 或 AidLux 环境中运行
+**环境要求：** Node.js ≥ 22
+
+### 一键安装（推荐）
+
+**macOS / Linux：**
 
 ```bash
-# 安装
-npm install -g openclaw-cn-termux@latest
-
-# 运行安装向导
-openclaw-termux onboard --install-daemon
-
-# 启动网关
-openclaw-termux gateway --port 18789 --verbose
+curl -fsSL https://clawd.org.cn/install.sh | bash
 ```
 
-## 📦 安装方式
+**Termux（推荐在 Termux 中通过 proot-distro 运行 Ubuntu）：**
 
-### npm（推荐）
+```bash
+curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-ubuntu.sh | bash
+```
+
+**AidLux：**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-aidlux.sh | bash
+```
+
+安装脚本会自动处理 Node 检测、安装和初始配置。
+
+### npm 安装
 
 ```bash
 npm install -g openclaw-cn-termux@latest
-# 或
-pnpm add -g openclaw-cn-termux@latest
+openclaw-termux onboard --install-daemon
 ```
 
 ### 从源码构建
 
 ```bash
-git clone https://github.com/byteuser1977/openclaw-cn-termux.git
+git clone https://github.com/byteuser977/openclaw-cn-termux.git
 cd openclaw-cn-termux
 
 pnpm install
@@ -69,9 +77,40 @@ pnpm build
 pnpm openclaw-termux onboard --install-daemon
 ```
 
+### Termux/AidLux 移动端安装
+
+本项目专为 Android Termux 和 AidLux 环境优化，已将所有 GitHub 依赖构建为 npm 包，国内用户可使用淘宝镜像源快速安装。
+
+**一键安装（推荐）：**
+
+| 环境   | 一键安装命令                                                                                                               |
+| ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Termux | `curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-ubuntu.sh \| bash` |
+| AidLux | `curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-aidlux.sh \| bash` |
+
+**手动安装步骤：**
+
+```bash
+# 1. 安装 Node.js 22+
+pkg update && pkg install nodejs
+
+# 2. 使用淘宝镜像安装（国内推荐）
+npm install -g openclaw-cn-termux@latest --registry=https://registry.npmmirror.com
+
+# 3. 运行初始配置
+openclaw-termux onboard
+
+# 4. 启动网关
+openclaw-termux gateway run
+```
+
+详细文档：[Termux 完整安装手册](https://clawd.org.cn/docs/installation) · [AidLux 安装手册](https://clawd.org.cn/docs/aidlux-installation)
+
 ## 🔧 配置
 
-最小配置 `~/.openclaw-cn-termux/openclaw.json`：
+配置文件位于 `~/.openclaw/` 目录（桌面端）或 `~/.openclaw-cn-termux/` 目录（Termux）。
+
+最小配置示例：
 
 ```json
 {
@@ -81,14 +120,26 @@ pnpm openclaw-termux onboard --install-daemon
 }
 ```
 
+详细配置请参考：[网关配置文档](https://clawd.org.cn/docs/gateway/configuration)
+
 ## 📚 文档
 
-参考 `https://clawd.org.cn/docs/` 文档。
+详细安装和配置文档：`https://clawd.org.cn/docs/`
 
-- `https://clawd.org.cn/docs/start/getting-started`
-- `https://clawd.org.cn/docs/gateway/configuration`
-- `https://clawd.org.cn/docs/channels`
-- `https://clawd.org.cn/docs/tools/skills`
+### 常用文档链接
+
+| 文档                                                        | 说明                     |
+| ----------------------------------------------------------- | ------------------------ |
+| [快速入门](https://clawd.org.cn/docs/start/getting-started) | 首次使用指南             |
+| [安装脚本详解](https://clawd.org.cn/docs/install/installer) | install.sh 参数和自动化  |
+| [Node.js 安装](https://clawd.org.cn/docs/install/node)      | PATH 问题排查            |
+| [npm/pnpm 安装](https://clawd.org.cn/docs/install)          | npm/pnpm 方式安装        |
+| [从源码构建](https://clawd.org.cn/docs/install)             | 开发者构建指南           |
+| [更新 OpenClaw](https://clawd.org.cn/docs/install/updating) | 更新和回滚策略           |
+| [卸载](https://clawd.org.cn/docs/install/uninstall)         | 完全卸载指南             |
+| [网关配置](https://clawd.org.cn/docs/gateway/configuration) | 网关配置参考             |
+| [渠道配置](https://clawd.org.cn/docs/channels)              | WhatsApp/Telegram 等配置 |
+| [技能扩展](https://clawd.org.cn/docs/tools/skills)          | 技能系统说明             |
 
 ## 🔄 版本同步
 

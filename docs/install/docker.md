@@ -16,6 +16,7 @@ Docker 是 **可选的**。仅在您想要容器化网关或验证 Docker 流程
 - **沙箱说明**：代理沙箱也使用 Docker，但它 **不** 要求完整网关在 Docker 中运行。详见 [沙箱](/gateway/sandboxing)。
 
 本指南涵盖：
+
 - 容器化网关（完整 Clawdbot 在 Docker 中）
 - 每会话代理沙箱（主机网关 + Docker 隔离的代理工具）
 
@@ -42,6 +43,7 @@ export OPENCLAW_IMAGE="jiulingyun803/openclaw-cn:latest"
 ```
 
 预构建镜像的优点：
+
 - ✅ **快速部署** — 无需本地构建，直接拉取镜像
 - ✅ **多架构支持** — 自动选择适配你的系统（amd64/arm64）
 - ✅ **更新及时** — 官方镜像定期更新最新版本
@@ -56,6 +58,7 @@ export OPENCLAW_IMAGE="jiulingyun803/openclaw-cn:latest"
 ```
 
 此脚本：
+
 - 构建网关镜像（可能耗时 10-30 分钟）
 - 运行引导向导
 - 打印可选的提供商设置提示
@@ -63,15 +66,18 @@ export OPENCLAW_IMAGE="jiulingyun803/openclaw-cn:latest"
 - 生成网关令牌并写入 `.env`
 
 可选环境变量：
+
 - `OPENCLAW_DOCKER_APT_PACKAGES` — 在构建期间安装额外的 apt 包
 - `OPENCLAW_EXTRA_MOUNTS` — 添加额外的主机绑定挂载
 - `OPENCLAW_HOME_VOLUME` — 在命名卷中持久化 `/home/node`
 
 完成后：
+
 - 在浏览器中打开 `http://127.0.0.1:18789/`。
 - 将令牌粘贴到控制 UI（设置 → 令牌）。
 
 它在主机上写入配置/工作空间：
+
 - `~/.openclaw/`
 - `~/clawd`
 
@@ -91,31 +97,31 @@ Docker 容器支持以下环境变量。您可以通过 `.env` 文件或命令�
 
 #### 网关和 CLI 共享的环境变量
 
-| 变量 | 用途 | 必需 | 说明 |
-|------|------|------|------|
-| `CLAUDE_AI_SESSION_KEY` | Claude.ai 会话凭证 | ❌ | 用于使用 Claude AI 作为智能体后端 |
-| `CLAUDE_WEB_SESSION_KEY` | Claude Web 会话凭证 | ❌ | 用于 Claude 网页版集成 |
-| `CLAUDE_WEB_COOKIE` | Claude Web 访问令牌 | ❌ | 用于 Claude 网页版 Cookie 认证 |
-| `OPENCLAW_GATEWAY_TOKEN` | 网关认证令牌 | ❌ | 由 `docker-setup.sh` 自动生成 |
-| `OPENCLAW_GATEWAY_BIND` | 网关绑定地址 | ❌ | 默认：`lan`（局域网）；可设为 `0.0.0.0`（公开）或 `localhost` |
-| `OPENCLAW_GATEWAY_PORT` | 网关监听端口 | ❌ | 默认：`18789` |
-| `OPENCLAW_BRIDGE_PORT` | 桥接端口 | ❌ | 默认：`18790` |
+| 变量                     | 用途                | 必需 | 说明                                                          |
+| ------------------------ | ------------------- | ---- | ------------------------------------------------------------- |
+| `CLAUDE_AI_SESSION_KEY`  | Claude.ai 会话凭证  | ❌   | 用于使用 Claude AI 作为智能体后端                             |
+| `CLAUDE_WEB_SESSION_KEY` | Claude Web 会话凭证 | ❌   | 用于 Claude 网页版集成                                        |
+| `CLAUDE_WEB_COOKIE`      | Claude Web 访问令牌 | ❌   | 用于 Claude 网页版 Cookie 认证                                |
+| `OPENCLAW_GATEWAY_TOKEN` | 网关认证令牌        | ❌   | 由 `docker-setup.sh` 自动生成                                 |
+| `OPENCLAW_GATEWAY_BIND`  | 网关绑定地址        | ❌   | 默认：`lan`（局域网）；可设为 `0.0.0.0`（公开）或 `localhost` |
+| `OPENCLAW_GATEWAY_PORT`  | 网关监听端口        | ❌   | 默认：`18789`                                                 |
+| `OPENCLAW_BRIDGE_PORT`   | 桥接端口            | ❌   | 默认：`18790`                                                 |
 
 #### 镜像和构建相关变量
 
-| 变量 | 用途 | 说明 |
-|------|------|------|
-| `OPENCLAW_IMAGE` | Docker 镜像名称 | 默认：`openclaw-cn:local`；可设为预构建镜像如 `jiulingyun803/openclaw-cn:latest` |
-| `OPENCLAW_DOCKER_APT_PACKAGES` | 额外的 apt 包 | 在镜像构建期间安装（如 `ffmpeg build-essential`） |
-| `OPENCLAW_EXTRA_MOUNTS` | 额外挂载点 | 逗号分隔的绑定挂载列表（如 `$HOME/.codex:/home/node/.codex:ro`) |
-| `OPENCLAW_HOME_VOLUME` | 命名卷名称 | 用于持久化容器 `/home/node` 目录 |
+| 变量                           | 用途            | 说明                                                                             |
+| ------------------------------ | --------------- | -------------------------------------------------------------------------------- |
+| `OPENCLAW_IMAGE`               | Docker 镜像名称 | 默认：`openclaw-cn:local`；可设为预构建镜像如 `jiulingyun803/openclaw-cn:latest` |
+| `OPENCLAW_DOCKER_APT_PACKAGES` | 额外的 apt 包   | 在镜像构建期间安装（如 `ffmpeg build-essential`）                                |
+| `OPENCLAW_EXTRA_MOUNTS`        | 额外挂载点      | 逗号分隔的绑定挂载列表（如 `$HOME/.codex:/home/node/.codex:ro`)                  |
+| `OPENCLAW_HOME_VOLUME`         | 命名卷名称      | 用于持久化容器 `/home/node` 目录                                                 |
 
 #### 配置和工作目录
 
-| 变量 | 用途 | 默认值 |
-|------|------|--------|
-| `OPENCLAW_CONFIG_DIR` | 配置目录 | `~/.openclaw` |
-| `OPENCLAW_WORKSPACE_DIR` | 工作区目录 | `~/clawd` |
+| 变量                     | 用途       | 默认值        |
+| ------------------------ | ---------- | ------------- |
+| `OPENCLAW_CONFIG_DIR`    | 配置目录   | `~/.openclaw` |
+| `OPENCLAW_WORKSPACE_DIR` | 工作区目录 | `~/clawd`     |
 
 **设置环境变量的方法：**
 
@@ -184,6 +190,7 @@ export OPENCLAW_EXTRA_MOUNTS="$HOME/.codex:/home/node/.codex:ro,$HOME/github:/ho
 ```
 
 注意：
+
 - 在 macOS/Windows 上，路径必须与 Docker Desktop 共享。
 - 如果您编辑 `OPENCLAW_EXTRA_MOUNTS`，重新运行 `docker-setup.sh` 以重新生成额外的 compose 文件。
 - `docker-compose.extra.yml` 是生成的。不要手动编辑它。
@@ -210,6 +217,7 @@ export OPENCLAW_EXTRA_MOUNTS="$HOME/.codex:/home/node/.codex:ro,$HOME/github:/ho
 ```
 
 注意：
+
 - 如果您更改 `OPENCLAW_HOME_VOLUME`，重新运行 `docker-setup.sh` 以重新生成额外的 compose 文件。
 - 命名卷会持久化，直到使用 `docker volume rm <name>` 删除。
 
@@ -227,6 +235,7 @@ export OPENCLAW_DOCKER_APT_PACKAGES="ffmpeg build-essential"
 ```
 
 注意：
+
 - 这接受空格分隔的 apt 包名列表。
 - 如果您更改 `OPENCLAW_DOCKER_APT_PACKAGES`，重新运行 `docker-setup.sh` 以重建镜像。
 
@@ -291,21 +300,25 @@ docker compose run --rm openclaw-cn-cli pairing approve feishu <pairing_code>
 使用 CLI 容器配置渠道，然后根据需要重启网关。
 
 WhatsApp（QR）：
+
 ```bash
 docker compose run --rm openclaw-cn-cli channels login
 ```
 
 Telegram（机器人令牌）：
+
 ```bash
 docker compose run --rm openclaw-cn-cli channels add --channel telegram --token "<token>"
 ```
 
 Discord（机器人令牌）：
+
 ```bash
 docker compose run --rm openclaw-cn-cli channels add --channel discord --token "<token>"
 ```
 
 Feishu（飞书）：
+
 ```bash
 # 使用引导向导设置
 docker compose run --rm openclaw-cn-cli onboard
@@ -338,19 +351,19 @@ docker compose run --rm openclaw-cn-cli doctor
 
 ### 常用 CLI 命令参考
 
-| 命令 | 说明 |
-|------|------|
-| `pairing list` | 列出待审批的配对请求 |
-| `pairing approve <channel> <code>` | 批准配对请求 |
-| `config get` | 查看当前配置 |
-| `config set <key> <value>` | 设置配置值 |
+| 命令                                                  | 说明                                     |
+| ----------------------------------------------------- | ---------------------------------------- |
+| `pairing list`                                        | 列出待审批的配对请求                     |
+| `pairing approve <channel> <code>`                    | 批准配对请求                             |
+| `config get`                                          | 查看当前配置                             |
+| `config set <key> <value>`                            | 设置配置值                               |
 | `config set gateway.controlUi.allowInsecureAuth true` | 允许 Web UI 不安全认证（见下文常见问题） |
-| `channels status` | 查看所有渠道状态 |
-| `channels login` | WhatsApp QR 登录 |
-| `channels add --channel <name> --token <token>` | 添加新渠道 |
-| `doctor` | 运行诊断检查 |
-| `logs` | 查看网关日志 |
-| `dashboard` | 打开控制面板 URL |
+| `channels status`                                     | 查看所有渠道状态                         |
+| `channels login`                                      | WhatsApp QR 登录                         |
+| `channels add --channel <name> --token <token>`       | 添加新渠道                               |
+| `doctor`                                              | 运行诊断检查                             |
+| `logs`                                                | 查看网关日志                             |
+| `dashboard`                                           | 打开控制面板 URL                         |
 
 ### E2E 冒烟测试（Docker）
 
@@ -368,10 +381,10 @@ pnpm test:docker:qr
 
 本项目提供两个主要的 Docker Compose 服务：
 
-| 服务 | 用途 | 命令 |
-|------|------|------|
-| `openclaw-cn-gateway` | 后台网关服务（持续运行） | `docker compose up -d openclaw-cn-gateway` |
-| `openclaw-cn-cli` | 交互式 CLI 工具（一次性命令） | `docker compose run --rm openclaw-cn-cli <command>` |
+| 服务                  | 用途                          | 命令                                                |
+| --------------------- | ----------------------------- | --------------------------------------------------- |
+| `openclaw-cn-gateway` | 后台网关服务（持续运行）      | `docker compose up -d openclaw-cn-gateway`          |
+| `openclaw-cn-cli`     | 交互式 CLI 工具（一次性命令） | `docker compose run --rm openclaw-cn-cli <command>` |
 
 ### 注意
 
@@ -387,6 +400,7 @@ pnpm test:docker:qr
 
 当 `agents.defaults.sandbox` 启用时，**非主会话** 在 Docker 容器内运行工具。
 网关保持在您的主机上，但工具执行是隔离的：
+
 - scope：默认为 `"agent"`（每个代理一个容器 + 工作空间）
 - scope：`"session"` 用于每会话隔离
 - 每范围的工作空间文件夹挂载在 `/workspace`
@@ -401,6 +415,7 @@ pnpm test:docker:qr
 如果您使用多代理路由，每个代理可以覆盖沙箱 + 工具设置：
 `agents.list[].sandbox` 和 `agents.list[].tools`（加上 `agents.list[].tools.sandbox.tools`）。
 这让您可以在一个网关中运行混合访问级别：
+
 - 完全访问（个人代理）
 - 只读工具 + 只读工作空间（家庭/工作代理）
 - 无文件系统/shell 工具（公共代理）
@@ -422,11 +437,12 @@ pnpm test:docker:qr
 ### 启用沙箱
 
 如果您计划在 `setupCommand` 中安装包，请注意：
+
 - 默认 `docker.network` 是 `"none"`（无出站）。
 - `readOnlyRoot: true` 阻止包安装。
 - `user` 必须是 root 才能运行 `apt-get`（省略 `user` 或设置 `user: "0:0"`）。
-Clawdbot 在 `setupCommand`（或 docker 配置）更改时自动重建容器，除非容器 **最近使用过**
-（约 5 分钟内）。热容器会记录警告，带有确切的 `clawdbot sandbox recreate ...` 命令。
+  Clawdbot 在 `setupCommand`（或 docker 配置）更改时自动重建容器，除非容器 **最近使用过**
+  （约 5 分钟内）。热容器会记录警告，带有确切的 `clawdbot sandbox recreate ...` 命令。
 
 ```json5
 {
@@ -453,28 +469,39 @@ Clawdbot 在 `setupCommand`（或 docker 配置）更改时自动重建容器，
           cpus: 1,
           ulimits: {
             nofile: { soft: 1024, hard: 2048 },
-            nproc: 256
+            nproc: 256,
           },
           seccompProfile: "/path/to/seccomp.json",
           apparmorProfile: "clawdbot-sandbox",
           dns: ["1.1.1.1", "8.8.8.8"],
-          extraHosts: ["internal.service:10.0.0.5"]
+          extraHosts: ["internal.service:10.0.0.5"],
         },
         prune: {
           idleHours: 24, // 0 禁用空闲清理
-          maxAgeDays: 7  // 0 禁用最大存在时间清理
-        }
-      }
-    }
+          maxAgeDays: 7, // 0 禁用最大存在时间清理
+        },
+      },
+    },
   },
   tools: {
     sandbox: {
       tools: {
-        allow: ["exec", "process", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "session_status"],
-        deny: ["browser", "canvas", "nodes", "cron", "discord", "gateway"]
-      }
-    }
-  }
+        allow: [
+          "exec",
+          "process",
+          "read",
+          "write",
+          "edit",
+          "sessions_list",
+          "sessions_history",
+          "sessions_send",
+          "sessions_spawn",
+          "session_status",
+        ],
+        deny: ["browser", "canvas", "nodes", "cron", "discord", "gateway"],
+      },
+    },
+  },
 }
 ```
 
@@ -495,6 +522,7 @@ scripts/sandbox-setup.sh
 这使用 `Dockerfile.sandbox` 构建 `clawdbot-sandbox:bookworm-slim`。
 
 ### 沙箱通用镜像（可选）
+
 如果您想要带有通用构建工具（Node、Go、Rust 等）的沙箱镜像，构建通用镜像：
 
 ```bash
@@ -505,7 +533,7 @@ scripts/sandbox-common-setup.sh
 
 ```json5
 {
-  agents: { defaults: { sandbox: { docker: { image: "clawdbot-sandbox-common:bookworm-slim" } } } }
+  agents: { defaults: { sandbox: { docker: { image: "clawdbot-sandbox-common:bookworm-slim" } } } },
 }
 ```
 
@@ -521,6 +549,7 @@ scripts/sandbox-browser-setup.sh
 容器运行启用 CDP 的 Chromium 和可选的 noVNC 观察器（通过 Xvfb 实现有头模式）。
 
 注意：
+
 - 有头模式（Xvfb）比无头模式减少机器人封锁。
 - 仍可通过设置 `agents.defaults.sandbox.browser.headless=true` 使用无头模式。
 - 不需要完整桌面环境（GNOME）；Xvfb 提供显示。
@@ -532,10 +561,10 @@ scripts/sandbox-browser-setup.sh
   agents: {
     defaults: {
       sandbox: {
-        browser: { enabled: true }
-      }
-    }
-  }
+        browser: { enabled: true },
+      },
+    },
+  },
 }
 ```
 
@@ -545,13 +574,14 @@ scripts/sandbox-browser-setup.sh
 {
   agents: {
     defaults: {
-      sandbox: { browser: { image: "my-clawdbot-browser" } }
-    }
-  }
+      sandbox: { browser: { image: "my-clawdbot-browser" } },
+    },
+  },
 }
 ```
 
 启用后，代理会收到：
+
 - 沙箱浏览器控制 URL（用于 `browser` 工具）
 - noVNC URL（如果启用且 headless=false）
 
@@ -570,9 +600,9 @@ docker build -t my-clawdbot-sbx -f Dockerfile.sandbox .
 {
   agents: {
     defaults: {
-      sandbox: { docker: { image: "my-clawdbot-sbx" } }
-    }
-  }
+      sandbox: { docker: { image: "my-clawdbot-sbx" } },
+    },
+  },
 }
 ```
 
@@ -585,6 +615,7 @@ docker build -t my-clawdbot-sbx -f Dockerfile.sandbox .
 ### 清理策略
 
 两个选项：
+
 - `prune.idleHours`：移除 X 小时未使用的容器（0 = 禁用）
 
 ---
@@ -604,11 +635,11 @@ Docker 会自动选择匹配你系统的镜像版本。
 
 ### 镜像标签
 
-| 标签 | 说明 | 更新频率 |
-|------|------|--------|
-| `latest` | 最新稳定版本 | 每次推送到 `main` 分支 |
-| `vX.Y.Z` | 特定版本 | 每次发布新版本标签 |
-| `main-XXXXX` | 开发版本 | 每次提交到 `main` 分支 |
+| 标签         | 说明         | 更新频率               |
+| ------------ | ------------ | ---------------------- |
+| `latest`     | 最新稳定版本 | 每次推送到 `main` 分支 |
+| `vX.Y.Z`     | 特定版本     | 每次发布新版本标签     |
+| `main-XXXXX` | 开发版本     | 每次提交到 `main` 分支 |
 
 ### 快速开始（使用预构建镜像）
 
@@ -705,10 +736,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 512M
         reservations:
-          cpus: '1'
+          cpus: "1"
           memory: 256M
     logging:
       driver: "json-file"
@@ -748,11 +779,13 @@ docker pull jiulingyun803/openclaw-cn:latest
 **类型 1：无法连接 Docker daemon（套接字权限不足）**
 
 症状：
+
 ```
 permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock
 ```
 
 解决（Linux）：
+
 ```bash
 # 将当前用户添加到 docker 组
 sudo usermod -aG docker $USER
@@ -769,6 +802,7 @@ docker ps
 **类型 2：容器内文件权限不足（EACCES）**
 
 症状：
+
 ```
 Error: EACCES: permission denied, mkdir '/home/node/.openclaw/...'
 ```
@@ -776,6 +810,7 @@ Error: EACCES: permission denied, mkdir '/home/node/.openclaw/...'
 原因：宿主机挂载目录由 root 创建，但容器以 `node:node`（UID 1000）运行，无写权限。
 
 解决：
+
 ```bash
 # 创建目录并设置正确所有者
 mkdir -p ./data/.openclaw ./data/clawd
@@ -785,12 +820,14 @@ chown -R 1000:1000 ./data
 ### 更多信息
 
 详见：
+
 - [Docker Hub 预构建镜像配置指南](/install/docker-hub-setup)
 - [Docker 官方文档](https://docs.docker.com/)
-- [Clawdbot Docker 示例](https://github.com/jiulingyun/moltbot-cn)
+- [Clawdbot Docker 示例](https://github.com/byteuser977/openclaw-cn-termux)
 - `prune.maxAgeDays`：移除超过 X 天的容器（0 = 禁用）
 
 示例：
+
 - 保留忙碌会话但限制生命周期：
   `idleHours: 24`，`maxAgeDays: 7`
 - 永不清理：
@@ -866,15 +903,17 @@ cat ~/.openclaw/openclaw.json | grep -A 2 controlUi
 故障排除步骤：
 
 1. **检查令牌**
+
    ```bash
    # 获取令牌
    cat ~/.openclaw/openclaw.json | grep -A 1 '"auth"'
-   
+
    # 验证 Web UI URL 中包含正确的令牌
    # 格式: http://127.0.0.1:18789/?token=<token>
    ```
 
 2. **查看网关日志**
+
    ```bash
    docker compose logs -f openclaw-cn-gateway | grep -i "control ui\|pairing"
    ```
@@ -888,7 +927,7 @@ cat ~/.openclaw/openclaw.json | grep -A 2 controlUi
 
 ## 故障排除
 
-- 镜像缺失：使用 [`scripts/sandbox-setup.sh`](https://github.com/jiulingyun/openclaw-cn/blob/main/scripts/sandbox-setup.sh) 构建或设置 `agents.defaults.sandbox.docker.image`。
+- 镜像缺失：使用 [`scripts/sandbox-setup.sh`](https://github.com/byteuser977/openclaw-cn-termux/blob/main/scripts/sandbox-setup.sh) 构建或设置 `agents.defaults.sandbox.docker.image`。
 - 容器未运行：它会按需自动创建每个会话。
 - 沙箱中的权限错误：将 `docker.user` 设置为与挂载的工作空间所有权匹配的 UID:GID（或 chown 工作空间文件夹）。
 - 网关/CLI 容器权限错误（`EACCES: permission denied, mkdir '/home/node/.openclaw/...'`）：容器以 `node:node`（UID 1000）运行，宿主机挂载目录必须对 UID 1000 可写。运行 `mkdir -p ./data/.openclaw ./data/clawd && chown -R 1000:1000 ./data` 修复。

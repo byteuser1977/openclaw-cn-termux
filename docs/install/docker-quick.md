@@ -22,6 +22,7 @@ curl -fsSL https://clawd.org.cn/install.sh | bash
 ```
 
 **这个脚本会自动：**
+
 - ✅ 检查 Docker 环境
 - ✅ 下载镜像
 - ✅ 配置环境变量
@@ -32,6 +33,7 @@ curl -fsSL https://clawd.org.cn/install.sh | bash
 完成后，在浏览器打开 `http://127.0.0.1:18789/` 即可使用。
 
 **脚本后续操作：**
+
 - 按照提示输入渠道信息（可选）
 - 将生成的令牌复制到 Web UI 登录
 
@@ -73,6 +75,7 @@ CLAUDE_WEB_COOKIE=
 ```
 
 **快速创建：**
+
 ```bash
 cat > .env << 'EOF'
 OPENCLAW_IMAGE=jiulingyun803/openclaw-cn:latest
@@ -120,7 +123,7 @@ services:
         "--bind",
         "${OPENCLAW_GATEWAY_BIND:-lan}",
         "--port",
-        "${OPENCLAW_GATEWAY_PORT:-18789}"
+        "${OPENCLAW_GATEWAY_PORT:-18789}",
       ]
 
   openclaw-cn-cli:
@@ -165,6 +168,7 @@ docker compose run --rm openclaw-cn-cli onboard
 ```
 
 **配置向导会提示你：**
+
 - 选择网关后端（Claude、Gemini 等）
 - 配置 Feishu、Telegram 等渠道
 - 生成和保存配置
@@ -172,6 +176,7 @@ docker compose run --rm openclaw-cn-cli onboard
 ### 步骤 6：访问 Web UI
 
 打开浏览器访问：
+
 ```
 http://127.0.0.1:18789/
 ```
@@ -182,22 +187,23 @@ http://127.0.0.1:18789/
 
 ## 环境变量详解
 
-| 变量 | 含义 | 默认值 | 必需 | 说明 |
-|------|------|--------|------|------|
-| `OPENCLAW_IMAGE` | Docker 镜像名称 | `openclaw-cn:local` | ❌ | 使用预构建镜像：`jiulingyun803/openclaw-cn:latest` 或 `jiulingyun803/openclaw-cn:vX.Y.Z` |
-| `OPENCLAW_CONFIG_DIR` | 配置文件目录 | `~/.openclaw` | ❌ | Clawdbot 配置和凭证存储位置 |
-| `OPENCLAW_WORKSPACE_DIR` | 工作空间目录 | `~/clawd` | ❌ | 代理工作文件存储位置 |
-| `OPENCLAW_GATEWAY_PORT` | 网关端口号 | `18789` | ❌ | 访问 Web UI 的端口（如需修改，访问时用新端口） |
-| `OPENCLAW_BRIDGE_PORT` | 桥接端口号 | `18790` | ❌ | 用于客户端连接的端口 |
-| `OPENCLAW_GATEWAY_BIND` | 网关绑定地址 | `lan` | ❌ | `localhost`（仅本机）/ `lan`（局域网）/ `0.0.0.0`（公网可访问，⚠️ 谨慎使用） |
-| `OPENCLAW_GATEWAY_TOKEN` | 网关认证令牌 | 自动生成 | ❌ | Web UI 登录令牌（可自定义或留空自动生成） |
-| `CLAUDE_AI_SESSION_KEY` | Claude.ai 会话密钥 | 空 | ❌ | ⚠️ 仅使用 Claude AI 作为后端时填写，获取方式见 [Claude 登录指南](/docs/providers/claude) |
-| `CLAUDE_WEB_SESSION_KEY` | Claude Web 会话密钥 | 空 | ❌ | ⚠️ 仅使用 Claude Web 版时填写 |
-| `CLAUDE_WEB_COOKIE` | Claude Web Cookie | 空 | ❌ | ⚠️ 仅使用 Claude Web 版时填写 |
+| 变量                     | 含义                | 默认值              | 必需 | 说明                                                                                     |
+| ------------------------ | ------------------- | ------------------- | ---- | ---------------------------------------------------------------------------------------- |
+| `OPENCLAW_IMAGE`         | Docker 镜像名称     | `openclaw-cn:local` | ❌   | 使用预构建镜像：`jiulingyun803/openclaw-cn:latest` 或 `jiulingyun803/openclaw-cn:vX.Y.Z` |
+| `OPENCLAW_CONFIG_DIR`    | 配置文件目录        | `~/.openclaw`       | ❌   | Clawdbot 配置和凭证存储位置                                                              |
+| `OPENCLAW_WORKSPACE_DIR` | 工作空间目录        | `~/clawd`           | ❌   | 代理工作文件存储位置                                                                     |
+| `OPENCLAW_GATEWAY_PORT`  | 网关端口号          | `18789`             | ❌   | 访问 Web UI 的端口（如需修改，访问时用新端口）                                           |
+| `OPENCLAW_BRIDGE_PORT`   | 桥接端口号          | `18790`             | ❌   | 用于客户端连接的端口                                                                     |
+| `OPENCLAW_GATEWAY_BIND`  | 网关绑定地址        | `lan`               | ❌   | `localhost`（仅本机）/ `lan`（局域网）/ `0.0.0.0`（公网可访问，⚠️ 谨慎使用）             |
+| `OPENCLAW_GATEWAY_TOKEN` | 网关认证令牌        | 自动生成            | ❌   | Web UI 登录令牌（可自定义或留空自动生成）                                                |
+| `CLAUDE_AI_SESSION_KEY`  | Claude.ai 会话密钥  | 空                  | ❌   | ⚠️ 仅使用 Claude AI 作为后端时填写，获取方式见 [Claude 登录指南](/docs/providers/claude) |
+| `CLAUDE_WEB_SESSION_KEY` | Claude Web 会话密钥 | 空                  | ❌   | ⚠️ 仅使用 Claude Web 版时填写                                                            |
+| `CLAUDE_WEB_COOKIE`      | Claude Web Cookie   | 空                  | ❌   | ⚠️ 仅使用 Claude Web 版时填写                                                            |
 
 ### 环境变量设置方式
 
 **方式 A：编辑 `.env` 文件（推荐）**
+
 ```bash
 # 编辑 .env 文件
 nano .env
@@ -207,12 +213,14 @@ docker compose up -d
 ```
 
 **方式 B：命令行设置**
+
 ```bash
 export OPENCLAW_GATEWAY_PORT=18789
 docker compose up -d
 ```
 
 **方式 C：命令行临时覆盖**
+
 ```bash
 docker compose -e OPENCLAW_GATEWAY_PORT=8080 up -d
 ```
@@ -239,6 +247,7 @@ docker compose logs -f openclaw-cn-gateway
 通过 CLI 容器配置各类渠道：
 
 **Telegram（需要机器人令牌）：**
+
 ```bash
 docker compose run --rm openclaw-cn-cli channels add \
   --channel telegram \
@@ -246,6 +255,7 @@ docker compose run --rm openclaw-cn-cli channels add \
 ```
 
 **Discord（需要机器人令牌）：**
+
 ```bash
 docker compose run --rm openclaw-cn-cli channels add \
   --channel discord \
@@ -253,11 +263,13 @@ docker compose run --rm openclaw-cn-cli channels add \
 ```
 
 **WhatsApp（QR 扫码）：**
+
 ```bash
 docker compose run --rm openclaw-cn-cli channels login
 ```
 
 **Feishu（需要 App ID 和 Secret）：**
+
 ```bash
 docker compose run --rm openclaw-cn-cli onboard
 # 按提示输入信息
@@ -308,6 +320,7 @@ docker rmi jiulingyun803/openclaw-cn:latest
 **症状：** `docker compose up` 后容器立即退出
 
 **解决：**
+
 ```bash
 # 查看详细错误日志
 docker compose logs openclaw-cn-gateway
@@ -330,6 +343,7 @@ permission denied while trying to connect to the Docker daemon socket at unix://
 **原因：** 当前用户不在 `docker` 用户组，无法访问 Docker daemon 套接字。
 
 **解决（Linux）：**
+
 ```bash
 # 将当前用户添加到 docker 组
 sudo usermod -aG docker $USER
@@ -354,6 +368,7 @@ docker ps
 **原因：** 容器以 `node:node`（UID 1000）用户运行，但宿主机上的数据目录可能由 root 创建，导致容器内的 node 用户没有写权限。
 
 **解决：**
+
 ```bash
 # 创建数据目录并设置正确的所有者（UID 1000 = 容器内 node 用户）
 mkdir -p ./data/.openclaw ./data/clawd
@@ -361,6 +376,7 @@ chown -R 1000:1000 ./data
 ```
 
 如果数据目录已存在但权限不对：
+
 ```bash
 # 修复已有目录的权限
 chown -R 1000:1000 ./data
@@ -373,6 +389,7 @@ chown -R 1000:1000 ./data
 **症状：** 浏览器访问 `http://127.0.0.1:18789` 无响应
 
 **解决：**
+
 ```bash
 # 检查容器是否运行
 docker compose ps
@@ -390,6 +407,7 @@ docker compose logs openclaw-cn-gateway
 **症状：** `docker compose run --rm openclaw-cn-cli onboard` 无反应
 
 **解决：**
+
 ```bash
 # 按 Ctrl+C 中断
 
@@ -437,13 +455,15 @@ docker compose up -d openclaw-cn-gateway
 ## 获取帮助
 
 - 遇到问题？运行诊断：
+
   ```bash
   docker compose run --rm openclaw-cn-cli doctor
   ```
 
 - 查看所有可用命令：
+
   ```bash
   docker compose run --rm openclaw-cn-cli --help
   ```
 
-- 提交 Issue：[GitHub Issues](https://github.com/jiulingyun/openclaw-cn/issues)
+- 提交 Issue：[GitHub Issues](https://github.com/byteuser977/openclaw-cn-termux/issues)

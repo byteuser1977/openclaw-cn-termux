@@ -1,13 +1,13 @@
 {
   "name": "openclaw-cn-termux",
   "version": "0.1.9",
-  "description": "Openclaw 中文社区版 - WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
+  "description": "Openclaw 中文社区版 - 私有化部署的 AI 智能助手，适配 Termux 和 AidLux 移动端环境",
   "keywords": [],
   "license": "MIT",
   "author": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jiulingyun/openclaw-cn"
+    "url": "https://github.com/byteuser977/openclaw-cn-termux"
   },
   "bin": {
     "clawdbot-termux": "dist/entry.js",

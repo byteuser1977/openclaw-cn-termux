@@ -18,7 +18,7 @@ title: "安装"
 - 仅从源码构建时需要 `pnpm`
 
 <Note>
-本版本适用于移动端环境。桌面端（macOS/Linux/Windows）请使用原版 <a href="https://github.com/jiulingyun/openclaw-cn">openclaw-cn</a>。
+本版本适用于移动端环境。桌面端（macOS/Linux/Windows）请使用原版 <a href="https://github.com/byteuser977/openclaw-cn-termux">openclaw-cn</a>。
 </Note>
 
 ## 安装方式
