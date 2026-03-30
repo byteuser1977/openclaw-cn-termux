@@ -57,6 +57,16 @@ import {
   ZAI_DEFAULT_MODEL_REF,
 } from "./onboard-auth.js";
 import {
+  discoverOpenAICompatibleModels,
+  buildDiscoveredModelOptions,
+} from "../agents/openai-models-discovery.js";
+import {
+  applyEphoneConfig,
+  applyEphoneProviderConfig,
+  EPHONE_BASE_URL,
+  EPHONE_DEFAULT_MODEL_ID,
+  EPHONE_MODELS,
+  setEphoneApiKey,
   applySiliconflowConfig,
   applySiliconflowProviderConfig,
   applyDashscopeConfig,
@@ -65,10 +75,14 @@ import {
   applyDashscopeCodingPlanProviderConfig,
   applyDeepseekConfig,
   applyDeepseekProviderConfig,
+  SILICONFLOW_BASE_URL,
   SILICONFLOW_DEFAULT_MODEL_REF,
+  DASHSCOPE_BASE_URL,
   DASHSCOPE_DEFAULT_MODEL_REF,
+  DASHSCOPE_CODING_PLAN_BASE_URL,
   DASHSCOPE_CODING_PLAN_DEFAULT_MODEL_ID,
   DASHSCOPE_CODING_PLAN_MODELS,
+  DEEPSEEK_BASE_URL,
   DEEPSEEK_DEFAULT_MODEL_REF,
   setSiliconflowApiKey,
   setDashscopeApiKey,
@@ -77,9 +91,14 @@ import {
   setDeepseekApiKey,
   applyMoonshotCodingPlanConfig,
   applyMoonshotCodingPlanProviderConfig,
+  MOONSHOT_BASE_URL,
+  MOONSHOT_CN_BASE_URL,
   MOONSHOT_CODING_PLAN_DEFAULT_MODEL_ID,
 } from "./onboard-auth.js";
 import { OPENCODE_ZEN_DEFAULT_MODEL } from "./opencode-zen-model-default.js";
+import { XIAOMI_API_BASE_URL } from "../agents/models-config.providers.js";
+
+const ZAI_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
 
 export async function applyAuthChoiceApiProviders(
   params: ApplyAuthChoiceParams,
@@ -132,7 +151,107 @@ export async function applyAuthChoiceApiProviders(
       authChoice = "venice-api-key";
     } else if (params.opts.tokenProvider === "opencode") {
       authChoice = "opencode-zen";
+    } else if (params.opts.tokenProvider === "ephone") {
+      authChoice = "ephone-api-key";
     }
+  }
+
+  if (authChoice === "ephone-api-key") {
+    let hasCredential = false;
+    let resolvedApiKey = "";
+    if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "ephone") {
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setEphoneApiKey(resolvedApiKey, params.agentDir);
+      hasCredential = true;
+    }
+    const envKey = resolveEnvApiKey("ephone");
+    if (envKey && !hasCredential) {
+      const useExisting = await params.prompter.confirm({
+        message: `使用已有 EPHONE_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})？`,
+        initialValue: true,
+      });
+      if (useExisting) {
+        resolvedApiKey = envKey.apiKey;
+        await setEphoneApiKey(resolvedApiKey, params.agentDir);
+        hasCredential = true;
+      }
+    }
+    if (!hasCredential) {
+      await params.prompter.note(
+        [
+          "ePhone AI 是模型聚合平台，支持 Claude、GPT、MiniMax、Kimi 等主流模型。",
+          "获取 API Key: https://platform.ephone.ai",
+          "配置文档: https://clawd.org.cn/providers/ephone.html",
+        ].join("\n"),
+        "ePhone AI",
+      );
+      const key = await params.prompter.text({
+        message: "输入 ePhone AI API key",
+        validate: validateApiKeyInput,
+      });
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setEphoneApiKey(resolvedApiKey, params.agentDir);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "ephone:default",
+      provider: "ephone",
+      mode: "api_key",
+    });
+    {
+      // Try dynamic model discovery from ePhone API; fall back to static list
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: EPHONE_BASE_URL,
+        apiKey: resolvedApiKey,
+      });
+
+      const staticOptions = EPHONE_MODELS.map((m) => ({ value: m.value, label: m.label }));
+      const pinnedIds = EPHONE_MODELS.filter((m) => m.value !== "custom").map((m) => m.value);
+      const modelOptions = discovered
+        ? buildDiscoveredModelOptions({
+            discovered,
+            pinnedIds,
+            customLabel: "手动输入模型 ID       （查看完整列表: platform.ephone.ai/models）",
+          })
+        : staticOptions;
+
+      const selection = await params.prompter.select({
+        message: discovered
+          ? `选择 ePhone AI 模型（已从 API 获取 ${discovered.length} 个可用模型）`
+          : "选择 ePhone AI 模型",
+        options: modelOptions,
+        initialValue: EPHONE_DEFAULT_MODEL_ID,
+      });
+
+      let modelId: string;
+      if (selection === "custom") {
+        await params.prompter.note(
+          "查看完整模型列表: https://platform.ephone.ai/models",
+          "ePhone AI 模型",
+        );
+        const input = await params.prompter.text({
+          message: "输入模型 ID",
+          validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+        });
+        modelId = typeof input === "string" ? input.trim() : EPHONE_DEFAULT_MODEL_ID;
+      } else {
+        modelId = String(selection);
+      }
+
+      const modelRef = `ephone/${modelId}`;
+      const applied = await applyDefaultModelChoice({
+        config: nextConfig,
+        setDefaultModel: params.setDefaultModel,
+        defaultModel: modelRef,
+        applyDefaultConfig: (cfg) => applyEphoneConfig(cfg, modelId),
+        applyProviderConfig: (cfg) => applyEphoneProviderConfig(cfg, modelId),
+        noteDefault: modelRef,
+        noteAgentModel,
+        prompter: params.prompter,
+      });
+      nextConfig = applied.config;
+      agentModelOverride = applied.agentModelOverride ?? modelRef;
+    }
+    return { config: nextConfig, agentModelOverride };
   }
 
   if (authChoice === "openrouter-api-key") {
@@ -216,8 +335,10 @@ export async function applyAuthChoiceApiProviders(
   // 新增：硅基流动 API Key 认证与默认模型配置
   if (authChoice === "siliconflow-api-key") {
     let hasCredential = false;
+    let resolvedApiKey = "";
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "siliconflow") {
-      await setSiliconflowApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setSiliconflowApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
     const envKey = resolveEnvApiKey("siliconflow");
@@ -227,7 +348,8 @@ export async function applyAuthChoiceApiProviders(
         initialValue: true,
       });
       if (useExisting) {
-        await setSiliconflowApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setSiliconflowApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
@@ -236,7 +358,8 @@ export async function applyAuthChoiceApiProviders(
         message: "输入硅基流动 (SiliconFlow) API key",
         validate: validateApiKeyInput,
       });
-      await setSiliconflowApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setSiliconflowApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "siliconflow:default",
@@ -244,18 +367,53 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
-      const applied = await applyDefaultModelChoice({
-        config: nextConfig,
-        setDefaultModel: params.setDefaultModel,
-        defaultModel: SILICONFLOW_DEFAULT_MODEL_REF,
-        applyDefaultConfig: applySiliconflowConfig,
-        applyProviderConfig: applySiliconflowProviderConfig,
-        noteDefault: SILICONFLOW_DEFAULT_MODEL_REF,
-        noteAgentModel,
-        prompter: params.prompter,
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: SILICONFLOW_BASE_URL,
+        apiKey: resolvedApiKey,
       });
-      nextConfig = applied.config;
-      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      if (discovered) {
+        const options = buildDiscoveredModelOptions({ discovered, customLabel: "手动输入模型 ID" });
+        const selection = await params.prompter.select({
+          message: `选择硅基流动模型（已获取 ${discovered.length} 个可用模型）`,
+          options,
+        });
+        let modelId: string;
+        if (selection === "custom") {
+          const input = await params.prompter.text({
+            message: "输入模型 ID",
+            validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+          });
+          modelId = typeof input === "string" ? input.trim() : "Qwen/Qwen2.5-32B-Instruct";
+        } else {
+          modelId = String(selection);
+        }
+        const modelRef = `siliconflow/${modelId}`;
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: modelRef,
+          applyDefaultConfig: (cfg) => applySiliconflowConfig(cfg),
+          applyProviderConfig: (cfg) => applySiliconflowProviderConfig(cfg),
+          noteDefault: modelRef,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? modelRef;
+      } else {
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: SILICONFLOW_DEFAULT_MODEL_REF,
+          applyDefaultConfig: applySiliconflowConfig,
+          applyProviderConfig: applySiliconflowProviderConfig,
+          noteDefault: SILICONFLOW_DEFAULT_MODEL_REF,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      }
     }
     return { config: nextConfig, agentModelOverride };
   }
@@ -263,8 +421,10 @@ export async function applyAuthChoiceApiProviders(
   // 新增：阿里云百炼 (DashScope) API Key 认证与默认模型配置
   if (authChoice === "dashscope-api-key") {
     let hasCredential = false;
+    let resolvedApiKey = "";
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "dashscope") {
-      await setDashscopeApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setDashscopeApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
     const envKey = resolveEnvApiKey("dashscope");
@@ -274,7 +434,8 @@ export async function applyAuthChoiceApiProviders(
         initialValue: true,
       });
       if (useExisting) {
-        await setDashscopeApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setDashscopeApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
@@ -283,7 +444,8 @@ export async function applyAuthChoiceApiProviders(
         message: "输入阿里云百炼 (DashScope) API key",
         validate: validateApiKeyInput,
       });
-      await setDashscopeApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setDashscopeApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "dashscope:default",
@@ -291,18 +453,53 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
-      const applied = await applyDefaultModelChoice({
-        config: nextConfig,
-        setDefaultModel: params.setDefaultModel,
-        defaultModel: DASHSCOPE_DEFAULT_MODEL_REF,
-        applyDefaultConfig: applyDashscopeConfig,
-        applyProviderConfig: applyDashscopeProviderConfig,
-        noteDefault: DASHSCOPE_DEFAULT_MODEL_REF,
-        noteAgentModel,
-        prompter: params.prompter,
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: DASHSCOPE_BASE_URL,
+        apiKey: resolvedApiKey,
       });
-      nextConfig = applied.config;
-      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      if (discovered) {
+        const options = buildDiscoveredModelOptions({ discovered, customLabel: "手动输入模型 ID" });
+        const selection = await params.prompter.select({
+          message: `选择阿里云百炼模型（已获取 ${discovered.length} 个可用模型）`,
+          options,
+        });
+        let modelId: string;
+        if (selection === "custom") {
+          const input = await params.prompter.text({
+            message: "输入模型 ID",
+            validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+          });
+          modelId = typeof input === "string" ? input.trim() : "qwen-plus";
+        } else {
+          modelId = String(selection);
+        }
+        const modelRef = `dashscope/${modelId}`;
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: modelRef,
+          applyDefaultConfig: (cfg) => applyDashscopeConfig(cfg),
+          applyProviderConfig: (cfg) => applyDashscopeProviderConfig(cfg),
+          noteDefault: modelRef,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? modelRef;
+      } else {
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: DASHSCOPE_DEFAULT_MODEL_REF,
+          applyDefaultConfig: applyDashscopeConfig,
+          applyProviderConfig: applyDashscopeProviderConfig,
+          noteDefault: DASHSCOPE_DEFAULT_MODEL_REF,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      }
     }
     return { config: nextConfig, agentModelOverride };
   }
@@ -310,12 +507,14 @@ export async function applyAuthChoiceApiProviders(
   // 新增：阿里云百炼 (Coding Plan) API Key 认证与默认模型配置
   if (authChoice === "dashscope-coding-plan-api-key") {
     let hasCredential = false;
+    let resolvedApiKey = "";
     if (
       !hasCredential &&
       params.opts?.token &&
       params.opts?.tokenProvider === "dashscope-coding-plan"
     ) {
-      await setDashscopeCodingPlanApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setDashscopeCodingPlanApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
     const envKey = resolveEnvApiKey("dashscope-coding-plan");
@@ -325,7 +524,8 @@ export async function applyAuthChoiceApiProviders(
         initialValue: true,
       });
       if (useExisting) {
-        await setDashscopeCodingPlanApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setDashscopeCodingPlanApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
@@ -334,7 +534,8 @@ export async function applyAuthChoiceApiProviders(
         message: "输入阿里云百炼 (Coding Plan) API key",
         validate: validateApiKeyInput,
       });
-      await setDashscopeCodingPlanApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setDashscopeCodingPlanApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "dashscope-coding-plan:default",
@@ -342,9 +543,27 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: DASHSCOPE_CODING_PLAN_BASE_URL,
+        apiKey: resolvedApiKey,
+      });
+
+      const staticOptions = DASHSCOPE_CODING_PLAN_MODELS.map((m) => ({
+        value: m.value,
+        label: m.label,
+      }));
+      const pinnedIds = DASHSCOPE_CODING_PLAN_MODELS.filter((m) => m.value !== "custom").map(
+        (m) => m.value,
+      );
+      const modelOptions = discovered
+        ? buildDiscoveredModelOptions({ discovered, pinnedIds, customLabel: "手动输入模型 ID" })
+        : staticOptions;
+
       const selection = await params.prompter.select({
-        message: "选择阿里云百炼 (Coding Plan) 模型",
-        options: DASHSCOPE_CODING_PLAN_MODELS.map((m) => ({ value: m.value, label: m.label })),
+        message: discovered
+          ? `选择阿里云百炼 (Coding Plan) 模型（已获取 ${discovered.length} 个可用模型）`
+          : "选择阿里云百炼 (Coding Plan) 模型",
+        options: modelOptions,
         initialValue: DASHSCOPE_CODING_PLAN_DEFAULT_MODEL_ID,
       });
 
@@ -454,8 +673,10 @@ export async function applyAuthChoiceApiProviders(
   // 新增：DeepSeek API Key 认证与默认模型配置
   if (authChoice === "deepseek-api-key") {
     let hasCredential = false;
+    let resolvedApiKey = "";
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "deepseek") {
-      await setDeepseekApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setDeepseekApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
     const envKey = resolveEnvApiKey("deepseek");
@@ -465,7 +686,8 @@ export async function applyAuthChoiceApiProviders(
         initialValue: true,
       });
       if (useExisting) {
-        await setDeepseekApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setDeepseekApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
@@ -474,7 +696,8 @@ export async function applyAuthChoiceApiProviders(
         message: "输入 DeepSeek API key",
         validate: validateApiKeyInput,
       });
-      await setDeepseekApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setDeepseekApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "deepseek:default",
@@ -482,18 +705,53 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
-      const applied = await applyDefaultModelChoice({
-        config: nextConfig,
-        setDefaultModel: params.setDefaultModel,
-        defaultModel: DEEPSEEK_DEFAULT_MODEL_REF,
-        applyDefaultConfig: applyDeepseekConfig,
-        applyProviderConfig: applyDeepseekProviderConfig,
-        noteDefault: DEEPSEEK_DEFAULT_MODEL_REF,
-        noteAgentModel,
-        prompter: params.prompter,
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: DEEPSEEK_BASE_URL,
+        apiKey: resolvedApiKey,
       });
-      nextConfig = applied.config;
-      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      if (discovered) {
+        const options = buildDiscoveredModelOptions({ discovered, customLabel: "手动输入模型 ID" });
+        const selection = await params.prompter.select({
+          message: `选择 DeepSeek 模型（已获取 ${discovered.length} 个可用模型）`,
+          options,
+        });
+        let modelId: string;
+        if (selection === "custom") {
+          const input = await params.prompter.text({
+            message: "输入模型 ID",
+            validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+          });
+          modelId = typeof input === "string" ? input.trim() : "deepseek-chat";
+        } else {
+          modelId = String(selection);
+        }
+        const modelRef = `deepseek/${modelId}`;
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: modelRef,
+          applyDefaultConfig: (cfg) => applyDeepseekConfig(cfg),
+          applyProviderConfig: (cfg) => applyDeepseekProviderConfig(cfg),
+          noteDefault: modelRef,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? modelRef;
+      } else {
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: DEEPSEEK_DEFAULT_MODEL_REF,
+          applyDefaultConfig: applyDeepseekConfig,
+          applyProviderConfig: applyDeepseekProviderConfig,
+          noteDefault: DEEPSEEK_DEFAULT_MODEL_REF,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      }
     }
     return { config: nextConfig, agentModelOverride };
   }
@@ -651,29 +909,33 @@ export async function applyAuthChoiceApiProviders(
 
   if (authChoice === "moonshot-api-key") {
     let hasCredential = false;
+    let resolvedApiKey = "";
 
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "moonshot") {
-      await setMoonshotApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setMoonshotApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
 
     const envKey = resolveEnvApiKey("moonshot");
-    if (envKey) {
+    if (envKey && !hasCredential) {
       const useExisting = await params.prompter.confirm({
-        message: `Use existing MOONSHOT_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        message: `使用已有 MOONSHOT_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})？`,
         initialValue: true,
       });
       if (useExisting) {
-        await setMoonshotApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setMoonshotApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
     if (!hasCredential) {
       const key = await params.prompter.text({
-        message: "Enter Moonshot API key",
+        message: "输入 Moonshot API key",
         validate: validateApiKeyInput,
       });
-      await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setMoonshotApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
@@ -681,46 +943,88 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
-      const applied = await applyDefaultModelChoice({
-        config: nextConfig,
-        setDefaultModel: params.setDefaultModel,
-        defaultModel: MOONSHOT_DEFAULT_MODEL_REF,
-        applyDefaultConfig: applyMoonshotConfig,
-        applyProviderConfig: applyMoonshotProviderConfig,
-        noteAgentModel,
-        prompter: params.prompter,
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: MOONSHOT_BASE_URL,
+        apiKey: resolvedApiKey,
       });
-      nextConfig = applied.config;
-      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      if (discovered) {
+        const options = buildDiscoveredModelOptions({ discovered, customLabel: "手动输入模型 ID" });
+        const selection = await params.prompter.select({
+          message: `选择 Moonshot 模型（已获取 ${discovered.length} 个可用模型）`,
+          options,
+          initialValue: "kimi-k2.5",
+        });
+        let modelId: string;
+        if (selection === "custom") {
+          const input = await params.prompter.text({
+            message: "输入模型 ID",
+            validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+          });
+          modelId = typeof input === "string" ? input.trim() : "kimi-k2.5";
+        } else {
+          modelId = String(selection);
+        }
+        const modelRef = `moonshot/${modelId}`;
+        nextConfig = applyMoonshotProviderConfig(nextConfig);
+        nextConfig = {
+          ...nextConfig,
+          agents: {
+            ...nextConfig.agents,
+            defaults: { ...nextConfig.agents?.defaults, model: { primary: modelRef } },
+          },
+        };
+        if (params.setDefaultModel) {
+          await params.prompter.note(`Default model set to ${modelRef}`, "Model configured");
+        } else {
+          await noteAgentModel(modelRef);
+          agentModelOverride = modelRef;
+        }
+      } else {
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: MOONSHOT_DEFAULT_MODEL_REF,
+          applyDefaultConfig: applyMoonshotConfig,
+          applyProviderConfig: applyMoonshotProviderConfig,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      }
     }
     return { config: nextConfig, agentModelOverride };
   }
 
   if (authChoice === "moonshot-api-key-cn") {
     let hasCredential = false;
+    let resolvedApiKey = "";
 
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "moonshot") {
-      await setMoonshotApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setMoonshotApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
 
     const envKey = resolveEnvApiKey("moonshot");
-    if (envKey) {
+    if (envKey && !hasCredential) {
       const useExisting = await params.prompter.confirm({
-        message: `Use existing MOONSHOT_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        message: `使用已有 MOONSHOT_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})？`,
         initialValue: true,
       });
       if (useExisting) {
-        await setMoonshotApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setMoonshotApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
     if (!hasCredential) {
       const key = await params.prompter.text({
-        message: "Enter Moonshot API key (.cn)",
+        message: "输入 Moonshot API key (.cn)",
         validate: validateApiKeyInput,
       });
-      await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setMoonshotApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
@@ -728,17 +1032,55 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
-      const applied = await applyDefaultModelChoice({
-        config: nextConfig,
-        setDefaultModel: params.setDefaultModel,
-        defaultModel: MOONSHOT_DEFAULT_MODEL_REF,
-        applyDefaultConfig: applyMoonshotCnConfig,
-        applyProviderConfig: applyMoonshotCnProviderConfig,
-        noteAgentModel,
-        prompter: params.prompter,
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: MOONSHOT_CN_BASE_URL,
+        apiKey: resolvedApiKey,
       });
-      nextConfig = applied.config;
-      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      if (discovered) {
+        const options = buildDiscoveredModelOptions({ discovered, customLabel: "手动输入模型 ID" });
+        const selection = await params.prompter.select({
+          message: `选择 Moonshot 模型（已获取 ${discovered.length} 个可用模型）`,
+          options,
+          initialValue: "kimi-k2.5",
+        });
+        let modelId: string;
+        if (selection === "custom") {
+          const input = await params.prompter.text({
+            message: "输入模型 ID",
+            validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+          });
+          modelId = typeof input === "string" ? input.trim() : "kimi-k2.5";
+        } else {
+          modelId = String(selection);
+        }
+        const modelRef = `moonshot/${modelId}`;
+        nextConfig = applyMoonshotCnProviderConfig(nextConfig);
+        nextConfig = {
+          ...nextConfig,
+          agents: {
+            ...nextConfig.agents,
+            defaults: { ...nextConfig.agents?.defaults, model: { primary: modelRef } },
+          },
+        };
+        if (params.setDefaultModel) {
+          await params.prompter.note(`Default model set to ${modelRef}`, "Model configured");
+        } else {
+          await noteAgentModel(modelRef);
+          agentModelOverride = modelRef;
+        }
+      } else {
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: MOONSHOT_DEFAULT_MODEL_REF,
+          applyDefaultConfig: applyMoonshotCnConfig,
+          applyProviderConfig: applyMoonshotCnProviderConfig,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      }
     }
     return { config: nextConfig, agentModelOverride };
   }
@@ -853,29 +1195,33 @@ export async function applyAuthChoiceApiProviders(
 
   if (authChoice === "zai-api-key") {
     let hasCredential = false;
+    let resolvedApiKey = "";
 
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "zai") {
-      await setZaiApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setZaiApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
 
     const envKey = resolveEnvApiKey("zai");
-    if (envKey) {
+    if (envKey && !hasCredential) {
       const useExisting = await params.prompter.confirm({
-        message: `Use existing ZAI_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        message: `使用已有 ZAI_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})？`,
         initialValue: true,
       });
       if (useExisting) {
-        await setZaiApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setZaiApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
     if (!hasCredential) {
       const key = await params.prompter.text({
-        message: "Enter Z.AI API key",
+        message: "输入 Z.AI API key",
         validate: validateApiKeyInput,
       });
-      await setZaiApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setZaiApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "zai:default",
@@ -883,62 +1229,104 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
-      const applied = await applyDefaultModelChoice({
-        config: nextConfig,
-        setDefaultModel: params.setDefaultModel,
-        defaultModel: ZAI_DEFAULT_MODEL_REF,
-        applyDefaultConfig: applyZaiConfig,
-        applyProviderConfig: (config) => ({
-          ...config,
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: ZAI_BASE_URL,
+        apiKey: resolvedApiKey,
+      });
+      if (discovered) {
+        const options = buildDiscoveredModelOptions({ discovered, customLabel: "手动输入模型 ID" });
+        const selection = await params.prompter.select({
+          message: `选择 Z.AI 模型（已获取 ${discovered.length} 个可用模型）`,
+          options,
+          initialValue: "glm-5",
+        });
+        let modelId: string;
+        if (selection === "custom") {
+          const input = await params.prompter.text({
+            message: "输入模型 ID",
+            validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+          });
+          modelId = typeof input === "string" ? input.trim() : "glm-5";
+        } else {
+          modelId = String(selection);
+        }
+        const modelRef = `zai/${modelId}`;
+        nextConfig = applyZaiConfig(nextConfig);
+        nextConfig = {
+          ...nextConfig,
           agents: {
-            ...config.agents,
-            defaults: {
-              ...config.agents?.defaults,
-              models: {
-                ...config.agents?.defaults?.models,
-                [ZAI_DEFAULT_MODEL_REF]: {
-                  ...config.agents?.defaults?.models?.[ZAI_DEFAULT_MODEL_REF],
-                  alias: config.agents?.defaults?.models?.[ZAI_DEFAULT_MODEL_REF]?.alias ?? "GLM",
+            ...nextConfig.agents,
+            defaults: { ...nextConfig.agents?.defaults, model: { primary: modelRef } },
+          },
+        };
+        if (params.setDefaultModel) {
+          await params.prompter.note(`Default model set to ${modelRef}`, "Model configured");
+        } else {
+          await noteAgentModel(modelRef);
+          agentModelOverride = modelRef;
+        }
+      } else {
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: ZAI_DEFAULT_MODEL_REF,
+          applyDefaultConfig: applyZaiConfig,
+          applyProviderConfig: (config) => ({
+            ...config,
+            agents: {
+              ...config.agents,
+              defaults: {
+                ...config.agents?.defaults,
+                models: {
+                  ...config.agents?.defaults?.models,
+                  [ZAI_DEFAULT_MODEL_REF]: {
+                    ...config.agents?.defaults?.models?.[ZAI_DEFAULT_MODEL_REF],
+                    alias: config.agents?.defaults?.models?.[ZAI_DEFAULT_MODEL_REF]?.alias ?? "GLM",
+                  },
                 },
               },
             },
-          },
-        }),
-        noteDefault: ZAI_DEFAULT_MODEL_REF,
-        noteAgentModel,
-        prompter: params.prompter,
-      });
-      nextConfig = applied.config;
-      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+          }),
+          noteDefault: ZAI_DEFAULT_MODEL_REF,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      }
     }
     return { config: nextConfig, agentModelOverride };
   }
 
   if (authChoice === "xiaomi-api-key") {
     let hasCredential = false;
+    let resolvedApiKey = "";
 
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "xiaomi") {
-      await setXiaomiApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(params.opts.token);
+      await setXiaomiApiKey(resolvedApiKey, params.agentDir);
       hasCredential = true;
     }
 
     const envKey = resolveEnvApiKey("xiaomi");
-    if (envKey) {
+    if (envKey && !hasCredential) {
       const useExisting = await params.prompter.confirm({
-        message: `Use existing XIAOMI_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        message: `使用已有 XIAOMI_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})？`,
         initialValue: true,
       });
       if (useExisting) {
-        await setXiaomiApiKey(envKey.apiKey, params.agentDir);
+        resolvedApiKey = envKey.apiKey;
+        await setXiaomiApiKey(resolvedApiKey, params.agentDir);
         hasCredential = true;
       }
     }
     if (!hasCredential) {
       const key = await params.prompter.text({
-        message: "Enter Xiaomi API key",
+        message: "输入小米 MiMo API key",
         validate: validateApiKeyInput,
       });
-      await setXiaomiApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      resolvedApiKey = normalizeApiKeyInput(String(key));
+      await setXiaomiApiKey(resolvedApiKey, params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xiaomi:default",
@@ -946,18 +1334,56 @@ export async function applyAuthChoiceApiProviders(
       mode: "api_key",
     });
     {
-      const applied = await applyDefaultModelChoice({
-        config: nextConfig,
-        setDefaultModel: params.setDefaultModel,
-        defaultModel: XIAOMI_DEFAULT_MODEL_REF,
-        applyDefaultConfig: applyXiaomiConfig,
-        applyProviderConfig: applyXiaomiProviderConfig,
-        noteDefault: XIAOMI_DEFAULT_MODEL_REF,
-        noteAgentModel,
-        prompter: params.prompter,
+      const discovered = await discoverOpenAICompatibleModels({
+        baseUrl: XIAOMI_API_BASE_URL,
+        apiKey: resolvedApiKey,
       });
-      nextConfig = applied.config;
-      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      if (discovered) {
+        const options = buildDiscoveredModelOptions({ discovered, customLabel: "手动输入模型 ID" });
+        const selection = await params.prompter.select({
+          message: `选择小米模型（已获取 ${discovered.length} 个可用模型）`,
+          options,
+          initialValue: "mimo-v2-flash",
+        });
+        let modelId: string;
+        if (selection === "custom") {
+          const input = await params.prompter.text({
+            message: "输入模型 ID",
+            validate: (val) => (String(val).trim().length > 0 ? undefined : "模型 ID 不能为空"),
+          });
+          modelId = typeof input === "string" ? input.trim() : "mimo-v2-flash";
+        } else {
+          modelId = String(selection);
+        }
+        const modelRef = `xiaomi/${modelId}`;
+        nextConfig = applyXiaomiProviderConfig(nextConfig);
+        nextConfig = {
+          ...nextConfig,
+          agents: {
+            ...nextConfig.agents,
+            defaults: { ...nextConfig.agents?.defaults, model: { primary: modelRef } },
+          },
+        };
+        if (params.setDefaultModel) {
+          await params.prompter.note(`Default model set to ${modelRef}`, "Model configured");
+        } else {
+          await noteAgentModel(modelRef);
+          agentModelOverride = modelRef;
+        }
+      } else {
+        const applied = await applyDefaultModelChoice({
+          config: nextConfig,
+          setDefaultModel: params.setDefaultModel,
+          defaultModel: XIAOMI_DEFAULT_MODEL_REF,
+          applyDefaultConfig: applyXiaomiConfig,
+          applyProviderConfig: applyXiaomiProviderConfig,
+          noteDefault: XIAOMI_DEFAULT_MODEL_REF,
+          noteAgentModel,
+          prompter: params.prompter,
+        });
+        nextConfig = applied.config;
+        agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      }
     }
     return { config: nextConfig, agentModelOverride };
   }

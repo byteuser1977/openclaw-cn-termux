@@ -21,6 +21,19 @@
 
 ---
 
+## 💎 赞助商
+
+<p align="center">
+  <a href="https://platform.ephone.ai">
+    <img src="https://platform.ephone.ai/logo-e.png" alt="ePhone AI" height="48">
+  </a>
+</p>
+<p align="center">
+  <a href="https://platform.ephone.ai"><b>ePhone AI</b></a> — 统一接入，极速集成；支持 Claude、GPT 等主流模型
+</p>
+
+---
+
 ## ✨ 特性
 
 - **📱 Termux + AidLux 优化** — 专为 Android Termux 和 AidLux 环境设计，移动端也能运行 AI 助手
