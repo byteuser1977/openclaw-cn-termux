@@ -7,7 +7,7 @@ function isOpenAiCompletionsModel(model: Model<Api>): model is Model<"openai-com
 /**
  * Ensures the model has an `input` field to prevent crashes in upstream SDK.
  * The SDK uses `model.input.includes("image")` without null checking.
- * @see https://github.com/jiulingyun/openclaw-cn/issues/32
+ * @see https://github.com/byteuser977/openclaw-cn-termux/issues/32
  */
 function ensureModelInput<T extends Model<Api>>(model: T): T {
   if (model.input && Array.isArray(model.input)) return model;

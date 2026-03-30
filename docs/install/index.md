@@ -97,10 +97,10 @@ openclaw-cn onboard --install-daemon
 
 **1. 克隆并构建**
 
-克隆 [OpenClaw 仓库](https://github.com/jiulingyun/openclaw-cn) 并构建：
+克隆 [OpenClaw-cn-termux仓库](https://github.com/byteuser977/openclaw-cn-termux) 并构建：
 
 ```bash
-git clone https://github.com/jiulingyun/openclaw-cn.git
+git clone https://github.com/byteuser977/openclaw-cn-termux.git
 cd openclaw
 pnpm install
 pnpm ui:build
