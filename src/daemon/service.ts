@@ -113,35 +113,35 @@ export function resolveGatewayService(): GatewayService {
     };
   }
 
+  if (isRunningInPureTermux()) {
+    return {
+      label: "termux-sv",
+      loadedText: "installed",
+      notLoadedText: "not installed",
+      install: async (args) => {
+        await installTermuxSvService(args);
+      },
+      uninstall: async (args) => {
+        await uninstallTermuxSvService(args);
+      },
+      stop: async (args) => {
+        await stopTermuxSvService({
+          stdout: args.stdout,
+          env: args.env,
+        });
+      },
+      restart: async (args) => {
+        await restartTermuxSvService({
+          stdout: args.stdout,
+          env: args.env,
+        });
+      },
+      isLoaded: async (args) => isTermuxSvServiceEnabled(args),
+      readCommand: readTermuxSvServiceCommand,
+      readRuntime: async (env) => await readTermuxSvServiceRuntime(env),
+    };
+  }
   if (process.platform === "linux") {
-    if (isRunningInPureTermux()) {
-      return {
-        label: "termux-sv",
-        loadedText: "installed",
-        notLoadedText: "not installed",
-        install: async (args) => {
-          await installTermuxSvService(args);
-        },
-        uninstall: async (args) => {
-          await uninstallTermuxSvService(args);
-        },
-        stop: async (args) => {
-          await stopTermuxSvService({
-            stdout: args.stdout,
-            env: args.env,
-          });
-        },
-        restart: async (args) => {
-          await restartTermuxSvService({
-            stdout: args.stdout,
-            env: args.env,
-          });
-        },
-        isLoaded: async (args) => isTermuxSvServiceEnabled(args),
-        readCommand: readTermuxSvServiceCommand,
-        readRuntime: async (env) => await readTermuxSvServiceRuntime(env),
-      };
-    }
     if (isRunningInTermux()) {
       return {
         label: "initd",
