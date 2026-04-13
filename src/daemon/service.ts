@@ -36,6 +36,15 @@ import {
   readInitdServiceCommand,
   readInitdServiceRuntime,
 } from "./initd.js";
+import {
+  installTermuxSvService,
+  uninstallTermuxSvService,
+  stopTermuxSvService,
+  restartTermuxSvService,
+  isTermuxSvServiceEnabled,
+  readTermuxSvServiceCommand,
+  readTermuxSvServiceRuntime,
+} from "./termux-sv.js";
 import { isRunningInTermux } from "./proot.js";
 
 export type GatewayServiceInstallArgs = {
@@ -107,30 +116,30 @@ export function resolveGatewayService(): GatewayService {
   if (process.platform === "linux") {
     if (isRunningInTermux()) {
       return {
-        label: "initd",
+        label: "termux-sv",
         loadedText: "installed",
         notLoadedText: "not installed",
         install: async (args) => {
-          await installInitdService(args);
+          await installTermuxSvService(args);
         },
         uninstall: async (args) => {
-          await uninstallInitdService(args);
+          await uninstallTermuxSvService(args);
         },
         stop: async (args) => {
-          await stopInitdService({
+          await stopTermuxSvService({
             stdout: args.stdout,
             env: args.env,
           });
         },
         restart: async (args) => {
-          await restartInitdService({
+          await restartTermuxSvService({
             stdout: args.stdout,
             env: args.env,
           });
         },
-        isLoaded: async (args) => isInitdServiceEnabled(args),
-        readCommand: readInitdServiceCommand,
-        readRuntime: async (env) => await readInitdServiceRuntime(env),
+        isLoaded: async (args) => isTermuxSvServiceEnabled(args),
+        readCommand: readTermuxSvServiceCommand,
+        readRuntime: async (env) => await readTermuxSvServiceRuntime(env),
       };
     }
     return {
