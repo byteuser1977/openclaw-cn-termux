@@ -270,7 +270,8 @@
       "libsignal": "npm:@openclaw-cn/libsignal@2.0.1"
     },
     "patchedDependencies": {
-      "@mariozechner/pi-ai": "patches/@mariozechner__pi-ai.patch"
+      "@mariozechner/pi-ai": "patches/@mariozechner__pi-ai.patch",
+      "@mariozechner/clipboard": "patches/@mariozechner__clipboard.patch"
     }
   },
   "openclawVersion": "2026.3.24",

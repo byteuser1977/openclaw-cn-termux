@@ -1,0 +1,18 @@
+export const availableFormats = [];
+export const getText = () => Promise.resolve("");
+export const setText = () => Promise.resolve();
+export const hasText = () => Promise.resolve(false);
+export const getImageBinary = () => Promise.resolve(null);
+export const getImageBase64 = () => Promise.resolve("");
+export const setImageBinary = () => Promise.resolve();
+export const setImageBase64 = () => Promise.resolve();
+export const hasImage = () => Promise.resolve(false);
+export const getHtml = () => Promise.resolve("");
+export const setHtml = () => Promise.resolve();
+export const hasHtml = () => Promise.resolve(false);
+export const getRtf = () => Promise.resolve("");
+export const setRtf = () => Promise.resolve();
+export const hasRtf = () => Promise.resolve(false);
+export const clear = () => Promise.resolve();
+export const watch = () => Promise.resolve();
+export const callThreadsafeFunction = () => Promise.resolve();
