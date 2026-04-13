@@ -84,10 +84,9 @@ export function isRunningInAidlux() {
   return false;
 }
 
-export function isRunningInTermux() {
-  if (isRunningInProotDistro() || isRunningInAidlux()) {
-    return true;
-  }
+
+
+export function isRunningInPureTermux(): boolean {
   const isTermux = Boolean(
     process.env.TERMUX_VERSION ||
     process.env.TERMUX_MAIN_PACKAGE_FORMAT ||
@@ -96,4 +95,11 @@ export function isRunningInTermux() {
     process.env.ANDROID_ROOT?.includes("com.termux"),
   );
   return isTermux;
+}
+
+export function isRunningInTermux() {
+  if (isRunningInProotDistro() || isRunningInAidlux()) {
+    return true;
+  }
+  return isRunningInPureTermux();
 }
