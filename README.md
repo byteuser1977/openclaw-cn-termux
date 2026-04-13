@@ -56,6 +56,12 @@
 curl -fsSL https://clawd.org.cn/install.sh | bash
 ```
 
+**Termux 原生环境（推荐）：**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-termux-native.sh | bash
+```
+
 **Termux（推荐在 Termux 中通过 proot-distro 运行 Ubuntu）：**
 
 ```bash
@@ -96,10 +102,11 @@ pnpm openclaw-termux onboard --install-daemon
 
 **一键安装（推荐）：**
 
-| 环境   | 一键安装命令                                                                                                               |
-| ------ | -------------------------------------------------------------------------------------------------------------------------- |
-| Termux | `curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-ubuntu.sh \| bash` |
-| AidLux | `curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-aidlux.sh \| bash` |
+| 环境         | 一键安装命令                                                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Termux 原生  | `curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-termux-native.sh \| bash` |
+| Termux (Proot) | `curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-ubuntu.sh \| bash` |
+| AidLux       | `curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-aidlux.sh \| bash` |
 
 **手动安装步骤：**
 
@@ -119,7 +126,54 @@ openclaw-termux gateway run
 
 详细文档：[Termux 完整安装手册](https://clawd.org.cn/docs/installation) · [AidLux 安装手册](https://clawd.org.cn/docs/aidlux-installation)
 
-## 🔧 配置
+## � Termux 原生环境安装说明
+
+本项目已支持 Termux 原生环境（非 proot）下的服务注册和管理，使用 Termux 的 runit 服务管理器。
+
+### 安装要求
+
+- Termux 版本 ≥ 0.118.0
+- Node.js ≥ 22
+- `sv` 命令可用（安装 `termux-services` 包）
+
+```bash
+pkg update && pkg install nodejs termux-services
+```
+
+### 服务管理
+
+安装后，网关服务将自动注册为 Termux runit 服务，可通过以下命令管理：
+
+```bash
+# 查看服务状态
+sv status openclaw-gateway
+
+# 启动服务
+sv up openclaw-gateway
+
+# 停止服务
+sv down openclaw-gateway
+
+# 重启服务
+sv restart openclaw-gateway
+
+# 查看服务日志
+svlogd -tt ~/.termux/runit/openclaw-gateway-log
+```
+
+### 与 Proot Termux 的区别
+
+| 特性           | Termux 原生 (runit) | Proot Termux (init.d) |
+| -------------- | ------------------- | --------------------- |
+| 服务管理器     | runit (sv)          | init.d 脚本           |
+| 服务目录       | `~/.termux/runit/`  | `~/.init.d/`          |
+| 日志管理       | svlogd              | nohup + 日志文件      |
+| 系统集成       | 更原生              | 兼容模式              |
+| 推荐场景       | 纯 Termux 环境      | proot-distro 等环境   |
+
+详细文档：[Termux 原生环境安装指南](https://clawd.org.cn/docs/installation/termux-native)
+
+## �🔧 配置
 
 配置文件位于 `~/.openclaw/` 目录（桌面端）或 `~/.openclaw-cn-termux/` 目录（Termux）。
 
