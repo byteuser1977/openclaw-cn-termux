@@ -4,6 +4,10 @@ Docs: https://clawd.org.cn/
 
 ## 0.2.0
 
+### Bug 修复
+
+- **修复公网 IP 直连 Control UI 时 WebSocket 断开 (1006)** (#547, thanks @Yogdunana)：通过 `http://<公网IP>:端口` 访问控制台时，浏览器 `Origin` 与 CSWSH 白名单不匹配导致 WebSocket 升级返回 403。修复：`isValidWebSocketOrigin()` 在 `Origin` 与请求头 `Host` 同源时放行；新增 `gateway-host-fix.js` 前置脚本，按需纠正 `localStorage` 中过期的 `gatewayUrl`。
+
 ### 新增功能
 
 - **新增 ePhone AI 模型供应商**：在模型配置向导中新增 [ePhone AI](https://platform.ephone.ai) 聚合平台，置顶为默认推荐供应商。兼容 OpenAI 协议（`https://api.ephone.ai/v1`），预设 claude-sonnet-4-6、claude-opus-4-6、MiniMax-M2.7、gpt-5.4、kimi-k2.5 五个可选模型，同时支持手动输入任意模型 ID。配置文档：https://clawd.org.cn/providers/ephone.html
