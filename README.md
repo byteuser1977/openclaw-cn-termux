@@ -56,7 +56,7 @@
 curl -fsSL https://clawd.org.cn/install.sh | bash
 ```
 
-**Termux 原生环境（推荐）：**
+**Termux 原生环境（非 proot 环境）：**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/byteuser1977/termux-install-openclaw/main/scripts/install-termux-native.sh | bash

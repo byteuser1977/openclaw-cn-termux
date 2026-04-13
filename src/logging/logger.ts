@@ -9,10 +9,16 @@ import type { ConsoleStyle } from "./console.js";
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
 import { readLoggingConfig } from "./config.js";
 import { loggingState } from "./state.js";
+import { isRunningInPureTermux } from "../daemon/proot.js";
+import { resolveGatewayStateDir } from "../daemon/paths.js";
 
 // Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
-// randomized path on macOS which made the “Open log” button a no-op.
-export const DEFAULT_LOG_DIR = "/tmp/clawdbot";
+// randomized path on macOS which made the "Open log" button a no-op.
+// For Termux native, use ~/.openclaw/logs/clawdbot.log instead of /tmp
+const DEFAULT_LOG_DIR_VALUE = isRunningInPureTermux()
+  ? path.join(resolveGatewayStateDir(process.env as any), "logs")
+  : "/tmp/clawdbot";
+export const DEFAULT_LOG_DIR = DEFAULT_LOG_DIR_VALUE;
 export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "clawdbot.log"); // legacy single-file path
 
 const LOG_PREFIX = "clawdbot";
