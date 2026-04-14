@@ -152,8 +152,8 @@ async function assertRunitAvailable() {
 }
 
 function resolveServiceSymlinkDir(env: Record<string, string | undefined>): string {
-  const home = toPosixPath(resolveHomeDir(env));
-  return path.posix.join(home, ".termux", "runit", "service");
+  const prefix = env.PREFIX || "/data/data/com.termux/files/usr";
+  return path.posix.join(toPosixPath(prefix), "var", "service");
 }
 
 export async function installTermuxSvService({
