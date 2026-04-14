@@ -84,17 +84,40 @@ async function executeCommand(
 
 async function assertRunitAvailable() {
   let errorDetails = "";
+  let svAvailable = false;
 
+  // First, try a simple check - just see if we can run sv at all
   try {
-    await executeCommand("sv", ["help"], {
+    const result = spawnSync("sv", ["--help"], {
       encoding: "utf8",
+      stdio: "ignore",
     });
-    return;
-  } catch (error) {
-    errorDetails = String(error);
+
+    // If the command was found (even if it returned non-zero exit code), consider it available
+    if (result.error === undefined) {
+      svAvailable = true;
+    }
+  } catch {
+    // Ignore
   }
 
-  // Try to gather more diagnostic info
+  // Try an even simpler check - just see if the file exists
+  if (!svAvailable) {
+    try {
+      const result = spawnSync("which", ["sv"], { encoding: "utf8" });
+      if (result.status === 0 && result.stdout.trim()) {
+        svAvailable = true;
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  if (svAvailable) {
+    return;
+  }
+
+  // Gather diagnostic info
   try {
     const result = spawnSync("which", ["sv"], { encoding: "utf8" });
     if (result.status === 0) {
