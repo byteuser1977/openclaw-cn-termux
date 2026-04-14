@@ -39,7 +39,27 @@ function detectPackageManager(ua = process.env.npm_config_user_agent ?? "") {
 }
 
 function shouldApplyPnpmPatchedDependenciesFallback(pm = detectPackageManager()) {
-  // pnpm already applies pnpm.patchedDependencies itself; re-applying would fail.
+  // Always apply patches if we're installed as an npm package
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const packageJsonPath = path.join(here, "..", "package.json");
+
+  if (!fs.existsSync(packageJsonPath)) {
+    return false;
+  }
+
+  try {
+    const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+    const isOpenClawPackage = pkg.name === "openclaw-cn-termux";
+
+    // If we're the openclaw-cn-termux package, always apply our patches
+    if (isOpenClawPackage) {
+      return true;
+    }
+  } catch {
+    // Ignore parsing errors
+  }
+
+  // Fall back to original logic
   return pm !== "pnpm";
 }
 
@@ -266,6 +286,19 @@ function applyPatchFile({ patchPath, targetDir }) {
     throw new Error(`missing patch: ${absPatchPath}`);
   }
   const patchText = fs.readFileSync(absPatchPath, "utf-8");
+
+  // Check if it's a full file replacement (not a diff)
+  if (!patchText.startsWith("diff --git ") && !patchText.startsWith("--- ")) {
+    // It's a full file replacement - look for index.js in targetDir
+    const targetIndexPath = path.join(targetDir, "index.js");
+    if (fs.existsSync(targetIndexPath)) {
+      console.log(`[postinstall] Replacing full file: ${targetIndexPath}`);
+      fs.writeFileSync(targetIndexPath, patchText, "utf-8");
+      return;
+    }
+  }
+
+  // Otherwise, treat as standard diff
   applyPatchSet({ patchText, targetDir });
 }
 
@@ -284,9 +317,9 @@ function warnIfUpstreamOpenclawInstalled() {
     );
     if (result.stdout?.trim() === "1") {
       console.warn(
-        "\n⚠️  [openclaw-cn] 检测到全局已安装上游 openclaw 包。\n" +
+        "\n⚠️  [openclaw-termux] 检测到全局已安装上游 openclaw 包。\n" +
           "   `openclaw` 命令当前指向最后安装的版本，可能不是 openclaw-cn。\n" +
-          "   建议使用 `openclaw-cn` 命令以确保调用本版本，或卸载其中一个以避免混淆。\n",
+          "   建议使用 `openclaw-termux` 命令以确保调用本版本，或卸载其中一个以避免混淆。\n",
       );
     }
   } catch {
@@ -315,15 +348,50 @@ function main() {
   const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
   const patched = pkg?.pnpm?.patchedDependencies ?? {};
 
-  // Bun does not support pnpm.patchedDependencies. Apply these patch files to
-  // node_modules packages as a best-effort compatibility layer.
+  // Determine where our node_modules directory is
+  let nodeModulesRoot = path.join(repoRoot, "node_modules");
+
+  // If we can't find node_modules in our own directory, we might be installed as a dependency
+  // Check parent directories
+  if (!fs.existsSync(nodeModulesRoot)) {
+    let currentDir = repoRoot;
+    while (currentDir !== path.dirname(currentDir)) {
+      const testPath = path.join(currentDir, "node_modules");
+      if (fs.existsSync(testPath)) {
+        nodeModulesRoot = testPath;
+        break;
+      }
+      currentDir = path.dirname(currentDir);
+    }
+  }
+
+  // Apply patches
   for (const [key, relPatchPath] of Object.entries(patched)) {
     if (typeof relPatchPath !== "string" || !relPatchPath.trim()) continue;
     const pkgName = extractPackageName(String(key));
     if (!pkgName) continue;
+
+    const targetDir = path.join(nodeModulesRoot, ...pkgName.split("/"));
+    const patchPath = path.isAbsolute(relPatchPath)
+      ? relPatchPath
+      : path.join(repoRoot, relPatchPath);
+
+    // Check if the patch file exists
+    if (!fs.existsSync(patchPath)) {
+      console.warn(`[postinstall] Patch file not found: ${patchPath}`);
+      continue;
+    }
+
+    // Check if the target package directory exists
+    if (!fs.existsSync(targetDir)) {
+      console.warn(`[postinstall] Target package not found: ${targetDir}`);
+      continue;
+    }
+
+    console.log(`[postinstall] Applying patch: ${patchPath} -> ${targetDir}`);
     applyPatchFile({
-      targetDir: path.join("node_modules", ...pkgName.split("/")),
-      patchPath: relPatchPath,
+      targetDir,
+      patchPath,
     });
   }
 }

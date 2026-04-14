@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { colorize, isRich, theme } from "../terminal/theme.js";
@@ -39,7 +39,7 @@ function buildServiceRunScript({
     .join("\n");
 
   const cmd = programArguments.map((arg) => `"${arg}"`).join(" ");
-  const workDir = workingDirectory || "$(dirname \"$0\")";
+  const workDir = workingDirectory || '$(dirname "$0")';
 
   return `#!/bin/sh
 # OpenClaw Gateway Service (Termux runit)
@@ -83,13 +83,77 @@ async function executeCommand(
 }
 
 async function assertRunitAvailable() {
+  let errorDetails = "";
+  let svAvailable = false;
+
+  // First, try a simple check - just see if we can run sv at all
   try {
-    await executeCommand("sv", ["--version"], {
+    const result = spawnSync("sv", ["--help"], {
       encoding: "utf8",
+      stdio: "ignore",
     });
+
+    // If the command was found (even if it returned non-zero exit code), consider it available
+    if (result.error === undefined) {
+      svAvailable = true;
+    }
   } catch {
-    throw new Error("Termux runit (sv) is not available. Please install termux-services package.");
+    // Ignore
   }
+
+  // Try an even simpler check - just see if the file exists
+  if (!svAvailable) {
+    try {
+      const result = spawnSync("which", ["sv"], { encoding: "utf8" });
+      if (result.status === 0 && result.stdout.trim()) {
+        svAvailable = true;
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  if (svAvailable) {
+    return;
+  }
+
+  // Gather diagnostic info
+  try {
+    const result = spawnSync("which", ["sv"], { encoding: "utf8" });
+    if (result.status === 0) {
+      errorDetails += `\n\nsv found at: ${result.stdout.trim()}`;
+    } else {
+      errorDetails += "\n\nsv not found in PATH";
+    }
+  } catch {
+    errorDetails += "\n\nCould not check sv location";
+  }
+
+  try {
+    const result = spawnSync("pkg", ["list-installed", "termux-services"], { encoding: "utf8" });
+    if (result.stdout.includes("termux-services")) {
+      errorDetails += "\ntermux-services is installed";
+    } else {
+      errorDetails += "\ntermux-services is NOT installed";
+    }
+  } catch {
+    // Ignore
+  }
+
+  throw new Error(
+    "Termux runit (sv) is not available.\n\n" +
+      "Please install termux-services package:\n" +
+      "  pkg install termux-services -y\n\n" +
+      "Then, if it's your first time, you may need to:\n" +
+      "1. Restart Termux\n" +
+      "2. Or start the service manager manually: sv up\n\n" +
+      `Diagnostics:\n${errorDetails}`,
+  );
+}
+
+function resolveServiceSymlinkDir(env: Record<string, string | undefined>): string {
+  const home = toPosixPath(resolveHomeDir(env));
+  return path.posix.join(home, ".termux", "runit", "service");
 }
 
 export async function installTermuxSvService({
@@ -111,11 +175,13 @@ export async function installTermuxSvService({
 
   const serviceDir = resolveServiceDir(env);
   const logDir = resolveServiceLogDir(env);
-  const logFile = path.posix.join(serviceDir, "main", "log");
+  const serviceSymlinkDir = resolveServiceSymlinkDir(env);
+  const serviceSymlinkPath = path.posix.join(serviceSymlinkDir, "openclaw-gateway");
+  const logSymlinkPath = path.posix.join(serviceDir, "log");
 
   await fs.mkdir(serviceDir, { recursive: true });
-  await fs.mkdir(path.join(serviceDir, "main"), { recursive: true });
   await fs.mkdir(logDir, { recursive: true });
+  await fs.mkdir(serviceSymlinkDir, { recursive: true });
 
   const serviceDescription =
     description ??
@@ -133,7 +199,7 @@ export async function installTermuxSvService({
 
   const logRunScript = buildServiceLogRunScript({
     description: serviceDescription,
-    logFile,
+    logFile: path.posix.join(logDir, "main"),
   });
 
   await fs.writeFile(path.join(serviceDir, "run"), runScript, "utf8");
@@ -146,13 +212,21 @@ export async function installTermuxSvService({
   stdout.write(`${formatLine("Log directory", logDir)}\n`);
 
   try {
-    await executeCommand("sv", ["enable", "openclaw-gateway"], {
-      encoding: "utf8",
-    });
-    stdout.write(`${formatLine("Enabled service", "openclaw-gateway")}\n`);
+    await fs.unlink(logSymlinkPath).catch(() => {});
+    await fs.symlink(logDir, logSymlinkPath);
+    stdout.write(`${formatLine("Linked log directory", logSymlinkPath)}\n`);
   } catch (error) {
-    stdout.write(`Warning: Failed to enable service via sv: ${String(error)}\n`);
-    stdout.write("You may need to manually link the service to runsvdir\n");
+    stdout.write(`Warning: Failed to link log directory: ${String(error)}\n`);
+  }
+
+  try {
+    await fs.unlink(serviceSymlinkPath).catch(() => {});
+    await fs.symlink(serviceDir, serviceSymlinkPath);
+    stdout.write(`${formatLine("Linked service to runsvdir", serviceSymlinkPath)}\n`);
+  } catch (error) {
+    stdout.write(`Warning: Failed to link service to runsvdir: ${String(error)}\n`);
+    stdout.write("You may need to manually link the service:\n");
+    stdout.write(`  ln -sf ${serviceDir} ${serviceSymlinkPath}\n`);
   }
 
   try {
@@ -160,8 +234,11 @@ export async function installTermuxSvService({
       encoding: "utf8",
     });
     stdout.write(`${formatLine("Started service", "openclaw-gateway")}\n`);
-  } catch (error) {
-    stdout.write(`Warning: Failed to start service via sv: ${String(error)}\n`);
+  } catch {
+    stdout.write(
+      `Note: Service may not have started yet. runsvdir needs to pick up the new service.\n`,
+    );
+    stdout.write(`You can manually start it with: sv up openclaw-gateway\n`);
   }
 
   return { serviceDir, logDir };
@@ -178,6 +255,8 @@ export async function uninstallTermuxSvService({
 
   const serviceDir = resolveServiceDir(env);
   const logDir = resolveServiceLogDir(env);
+  const serviceSymlinkDir = resolveServiceSymlinkDir(env);
+  const serviceSymlinkPath = path.posix.join(serviceSymlinkDir, "openclaw-gateway");
 
   try {
     await executeCommand("sv", ["down", "openclaw-gateway"], {
@@ -185,23 +264,14 @@ export async function uninstallTermuxSvService({
     });
     stdout.write(`${formatLine("Stopped service", "openclaw-gateway")}\n`);
   } catch {
-    stdout.write("Service not running\n");
+    stdout.write("Service not running or already stopped\n");
   }
 
   try {
-    await executeCommand("sv", ["disable", "openclaw-gateway"], {
-      encoding: "utf8",
-    });
-    stdout.write(`${formatLine("Disabled service", "openclaw-gateway")}\n`);
+    await fs.unlink(serviceSymlinkPath);
+    stdout.write(`${formatLine("Removed service symlink", serviceSymlinkPath)}\n`);
   } catch {
-    stdout.write("Service not enabled\n");
-  }
-
-  try {
-    await fs.unlink(path.join(serviceDir, "run"));
-    stdout.write(`${formatLine("Removed service script", path.join(serviceDir, "run"))}\n`);
-  } catch {
-    stdout.write(`Service script not found at ${path.join(serviceDir, "run")}\n`);
+    stdout.write("Service symlink not found or already removed\n");
   }
 
   try {
@@ -209,13 +279,6 @@ export async function uninstallTermuxSvService({
     stdout.write(`${formatLine("Removed service directory", serviceDir)}\n`);
   } catch {
     stdout.write(`Service directory not found at ${serviceDir}\n`);
-  }
-
-  try {
-    await fs.unlink(path.join(logDir, "run"));
-    stdout.write(`${formatLine("Removed log script", path.join(logDir, "run"))}\n`);
-  } catch {
-    stdout.write(`Log script not found at ${path.join(logDir, "run")}\n`);
   }
 
   try {
@@ -228,7 +291,7 @@ export async function uninstallTermuxSvService({
 
 export async function stopTermuxSvService({
   stdout,
-  env,
+  env: _env,
 }: {
   stdout: NodeJS.WritableStream;
   env?: Record<string, string | undefined>;
@@ -248,7 +311,7 @@ export async function stopTermuxSvService({
 
 export async function restartTermuxSvService({
   stdout,
-  env,
+  env: _env,
 }: {
   stdout: NodeJS.WritableStream;
   env?: Record<string, string | undefined>;
@@ -326,9 +389,7 @@ export async function readTermuxSvServiceRuntime(
   }
 }
 
-export async function readTermuxSvServiceCommand(
-  env: Record<string, string | undefined>,
-): Promise<{
+export async function readTermuxSvServiceCommand(env: Record<string, string | undefined>): Promise<{
   programArguments: string[];
   workingDirectory?: string;
   environment?: Record<string, string>;
