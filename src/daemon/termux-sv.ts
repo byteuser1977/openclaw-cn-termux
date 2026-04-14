@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { colorize, isRich, theme } from "../terminal/theme.js";
@@ -39,7 +39,7 @@ function buildServiceRunScript({
     .join("\n");
 
   const cmd = programArguments.map((arg) => `"${arg}"`).join(" ");
-  const workDir = workingDirectory || "$(dirname \"$0\")";
+  const workDir = workingDirectory || '$(dirname "$0")';
 
   return `#!/bin/sh
 # OpenClaw Gateway Service (Termux runit)
@@ -83,13 +83,49 @@ async function executeCommand(
 }
 
 async function assertRunitAvailable() {
+  let errorDetails = "";
+
   try {
-    await executeCommand("sv", ["--version"], {
+    await executeCommand("sv", ["help"], {
       encoding: "utf8",
     });
-  } catch {
-    throw new Error("Termux runit (sv) is not available. Please install termux-services package.");
+    return;
+  } catch (error) {
+    errorDetails = String(error);
   }
+
+  // Try to gather more diagnostic info
+  try {
+    const result = spawnSync("which", ["sv"], { encoding: "utf8" });
+    if (result.status === 0) {
+      errorDetails += `\n\nsv found at: ${result.stdout.trim()}`;
+    } else {
+      errorDetails += "\n\nsv not found in PATH";
+    }
+  } catch {
+    errorDetails += "\n\nCould not check sv location";
+  }
+
+  try {
+    const result = spawnSync("pkg", ["list-installed", "termux-services"], { encoding: "utf8" });
+    if (result.stdout.includes("termux-services")) {
+      errorDetails += "\ntermux-services is installed";
+    } else {
+      errorDetails += "\ntermux-services is NOT installed";
+    }
+  } catch {
+    // Ignore
+  }
+
+  throw new Error(
+    "Termux runit (sv) is not available.\n\n" +
+      "Please install termux-services package:\n" +
+      "  pkg install termux-services -y\n\n" +
+      "Then, if it's your first time, you may need to:\n" +
+      "1. Restart Termux\n" +
+      "2. Or start the service manager manually: sv up\n\n" +
+      `Diagnostics:\n${errorDetails}`,
+  );
 }
 
 export async function installTermuxSvService({
@@ -228,7 +264,7 @@ export async function uninstallTermuxSvService({
 
 export async function stopTermuxSvService({
   stdout,
-  env,
+  env: _env,
 }: {
   stdout: NodeJS.WritableStream;
   env?: Record<string, string | undefined>;
@@ -248,7 +284,7 @@ export async function stopTermuxSvService({
 
 export async function restartTermuxSvService({
   stdout,
-  env,
+  env: _env,
 }: {
   stdout: NodeJS.WritableStream;
   env?: Record<string, string | undefined>;
@@ -326,9 +362,7 @@ export async function readTermuxSvServiceRuntime(
   }
 }
 
-export async function readTermuxSvServiceCommand(
-  env: Record<string, string | undefined>,
-): Promise<{
+export async function readTermuxSvServiceCommand(env: Record<string, string | undefined>): Promise<{
   programArguments: string[];
   workingDirectory?: string;
   environment?: Record<string, string>;
